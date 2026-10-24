@@ -99,7 +99,7 @@ def _mo_dau(ch: CauHinh, nguon: str) -> str:
 
 def _bien_dich(nguon_typ: str, thu_muc: Path, ra: Path) -> None:
     (thu_muc / "main.typ").write_text(nguon_typ, encoding="utf-8")
-    phong = resources.files("phieu_co").joinpath("tai_nguyen", "phong")
+    phong = resources.files("chessbision").joinpath("tai_nguyen", "phong")
     with resources.as_file(phong) as p:
         typst.compile(str(thu_muc / "main.typ"), output=str(ra), root=str(thu_muc),
                       font_paths=[str(p)], ignore_system_fonts=True)

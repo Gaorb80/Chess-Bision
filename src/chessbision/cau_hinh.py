@@ -1,6 +1,6 @@
 """Tùy chọn in phiếu. Mặc định chọn để giáo viên không phải chỉnh gì cũng in được.
 
-Có thể ghi đè bằng file phieu-co.toml (bảng [phieu]) rồi bằng tham số dòng lệnh.
+Có thể ghi đè bằng file chessbision.toml (bảng [phieu]) rồi bằng tham số dòng lệnh.
 """
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ class CauHinh:
 
 
 def doc(tep: Path | None, **ghi_de) -> CauHinh:
-    """Mặc định ← phieu-co.toml (nếu có) ← tham số (bỏ qua giá trị None)."""
+    """Mặc định ← chessbision.toml (nếu có) ← tham số (bỏ qua giá trị None)."""
     ch = CauHinh()
     if tep and tep.exists():
         bang = tomllib.loads(tep.read_text(encoding="utf-8")).get("phieu", {})

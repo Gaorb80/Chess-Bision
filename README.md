@@ -1,10 +1,10 @@
-# phieu-co
+# ChessBision
 
 In phiếu bài tập cờ vua từ **link study Lichess** hoặc **file PGN**: một lệnh, ra `phieu.pdf` cho học sinh và `dap-an.pdf` cho giáo viên.
 
 ```bash
-phieu-co in https://lichess.org/study/TqmJP6yk
-phieu-co in mau/chieu-het-1-nuoc.pgn --cap-do A --bien-soan "CLB Dream Chess"
+chessbision in https://lichess.org/study/TqmJP6yk
+chessbision in mau/chieu-het-1-nuoc.pgn --cap-do A --bien-soan "CLB Dream Chess"
 ```
 
 Đây là bản M0 trong [bản thiết kế kiến trúc](https://claude.ai/artifact/1fN3UKBiGdTSBCpR2kPPvt).
@@ -27,7 +27,7 @@ Không cần cài LaTeX hay Typst riêng: gói `typst` trên PyPI có sẵn trì
    - Đề bài lấy từ bình luận đầu chương; không có thì tự viết theo kết quả kiểm, ví dụ “Chiếu hết sau 1 nước”.
    - Báo lại: chương là ván đầy đủ (bỏ qua), bài trùng thế cờ (bỏ qua), bài chiếu hết 1 nước có nhiều đáp án (ghi đủ), PGN sai luật (bỏ qua).
    - Điểm từng bài: tag `[Points "20"]`, mặc định 10.
-3. **Mô hình** (`mo_hinh.py`): lưu được ra JSON (`--luu-json bai.json`), sửa tay rồi in lại (`phieu-co in bai.json`).
+3. **Mô hình** (`mo_hinh.py`): lưu được ra JSON (`--luu-json bai.json`), sửa tay rồi in lại (`chessbision in bai.json`).
 4. **Xuất** (`xuat/`): sơ đồ SVG đen trắng bằng bộ quân cburnett, Typst ghép trang A4, phông Be Vietnam Pro.
 
 ## Tùy chọn
@@ -42,7 +42,7 @@ Không cần cài LaTeX hay Typst riêng: gói `typst` trên PyPI có sẵn trì
 | `--bo-trung` | `co` | `khong` |
 | `--tieu-de`, `--cap-do`, `--bien-soan` | lấy từ study | |
 
-Dùng chung cho cả CLB: chép `phieu-co.toml.example` thành `phieu-co.toml`.
+Dùng chung cho cả CLB: chép `chessbision.toml.example` thành `chessbision.toml`.
 
 ## Kiểm thử
 
@@ -55,4 +55,4 @@ Kiểm thử chạy không cần mạng, dùng PGN trong `mau/`.
 
 ## Giấy phép
 
-GPL-3.0 trở lên (python-chess là GPL-3). Quân cờ cburnett (GPLv2+) và phông Be Vietnam Pro (OFL): xem `src/phieu_co/tai_nguyen/NGUON.md`.
+GPL-3.0 trở lên (python-chess là GPL-3). Quân cờ cburnett (GPLv2+) và phông Be Vietnam Pro (OFL): xem `src/chessbision/tai_nguyen/NGUON.md`.

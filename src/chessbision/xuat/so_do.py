@@ -19,7 +19,7 @@ O_TOI = "#c4c4c4"  # đủ đậm để phân biệt khi in, quân đen trên ô
 @cache
 def _quan(ten: str) -> str:
     """Phần thân của file quân (bỏ thẻ <svg> ngoài) để lồng vào bàn cờ."""
-    svg = resources.files("phieu_co").joinpath("tai_nguyen", "quan", f"{ten}.svg").read_text(encoding="utf-8")
+    svg = resources.files("chessbision").joinpath("tai_nguyen", "quan", f"{ten}.svg").read_text(encoding="utf-8")
     return re.sub(r"^.*?<svg[^>]*>|</svg>\s*$", "", svg, flags=re.S)
 
 

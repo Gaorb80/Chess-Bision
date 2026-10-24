@@ -2,10 +2,10 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
-from phieu_co import cau_hinh
-from phieu_co.mo_hinh import Worksheet
-from phieu_co.tach_bai import tach
-from phieu_co.xuat import pdf, so_do
+from chessbision import cau_hinh
+from chessbision.mo_hinh import Worksheet
+from chessbision.tach_bai import tach
+from chessbision.xuat import pdf, so_do
 
 MAU = Path(__file__).parent.parent / "mau"
 

@@ -1,8 +1,8 @@
 """Dòng lệnh.
 
-  phieu-co in <link Lichess | file.pgn> [-o thư-mục] [tùy chọn]
-  phieu-co in <…> --luu-json bai.json      # lưu bài đã tách để sửa tay
-  phieu-co in bai.json                      # in lại từ JSON đã sửa
+  chessbision in <link Lichess | file.pgn> [-o thư-mục] [tùy chọn]
+  chessbision in <…> --luu-json bai.json      # lưu bài đã tách để sửa tay
+  chessbision in bai.json                      # in lại từ JSON đã sửa
 
 Study riêng tư: đặt biến môi trường LICHESS_TOKEN (quyền study:read).
 """
@@ -28,12 +28,12 @@ def _bat_tat(s: str) -> bool:
 
 def main(argv: list[str] | None = None) -> int:
     sys.stdout.reconfigure(encoding="utf-8")
-    ap = argparse.ArgumentParser(prog="phieu-co", description="In phiếu bài tập cờ vua từ study Lichess hoặc file PGN.")
+    ap = argparse.ArgumentParser(prog="chessbision", description="In phiếu bài tập cờ vua từ study Lichess hoặc file PGN.")
     sub = ap.add_subparsers(dest="lenh", required=True)
     p = sub.add_parser("in", help="tạo phieu.pdf (+ dap-an.pdf)")
     p.add_argument("dau_vao", help="link study / chương Lichess, file .pgn, hoặc file .json đã lưu")
     p.add_argument("-o", "--ra", default="phieu", help="thư mục ghi PDF (mặc định: ./phieu)")
-    p.add_argument("--cau-hinh", default="phieu-co.toml", help="file cấu hình (mặc định: phieu-co.toml nếu có)")
+    p.add_argument("--cau-hinh", default="chessbision.toml", help="file cấu hình (mặc định: chessbision.toml nếu có)")
     p.add_argument("--tieu-de")
     p.add_argument("--cap-do")
     p.add_argument("--bien-soan")

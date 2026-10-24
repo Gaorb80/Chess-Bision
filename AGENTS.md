@@ -1,4 +1,4 @@
-# Hướng dẫn cho agent: phieu-co
+# Hướng dẫn cho agent: ChessBision
 
 Công cụ in phiếu bài tập cờ vua từ study Lichess / PGN. Kiến trúc: https://claude.ai/artifact/1fN3UKBiGdTSBCpR2kPPvt
 Người dùng viết tiếng Việt; trả lời tiếng Việt. Tên module, biến viết tiếng Việt không dấu như mã hiện có.
@@ -11,7 +11,7 @@ Người dùng viết tiếng Việt; trả lời tiếng Việt. Tên module, b
 - Phiếu học sinh không bao giờ chứa đáp án (có phép thử).
 - Lichess: gửi lần lượt từng yêu cầu, 429 → chờ 60 s. Token chỉ ở biến môi trường, không ghi vào repo, không in ra. Công cụ chỉ **đọc** Lichess.
 - Kiểm thử không dùng mạng: thêm PGN thật vào `mau/` khi cần.
-- Tài nguyên ngoài phải ghi nguồn và giấy phép trong `src/phieu_co/tai_nguyen/NGUON.md`.
+- Tài nguyên ngoài phải ghi nguồn và giấy phép trong `src/chessbision/tai_nguyen/NGUON.md`.
 
 ## Git
 

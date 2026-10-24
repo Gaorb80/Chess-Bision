@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from phieu_co.tach_bai import de_chung, tach
+from chessbision.tach_bai import de_chung, tach
 
 MAU = Path(__file__).parent.parent / "mau"
 

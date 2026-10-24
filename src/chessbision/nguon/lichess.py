@@ -36,7 +36,7 @@ def tai_pgn(study: str, chuong: str | None = None, *, token: str | None = None, 
     query = urllib.parse.urlencode({"clocks": "false", "comments": "true", "variations": "true", "orientation": "true"})
     req = urllib.request.Request(f"{API}{duong}?{query}", headers={
         "Accept": "application/x-chess-pgn",
-        "User-Agent": f"phieu-co/{__version__}",
+        "User-Agent": f"chessbision/{__version__}",
     })
     if token:
         req.add_header("Authorization", "Bearer " + token)

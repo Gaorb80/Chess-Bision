@@ -1,4 +1,4 @@
-# Chép thành phieu-co.toml (cùng thư mục chạy lệnh) để cả CLB dùng chung một kiểu phiếu.
+# Chép thành chessbision.toml (cùng thư mục chạy lệnh) để cả CLB dùng chung một kiểu phiếu.
 # Tham số dòng lệnh ghi đè các giá trị ở đây.
 [phieu]
 bien_soan = "CLB Dream Chess"

@@ -1,4 +1,4 @@
-from phieu_co.ky_hieu import dong_nuoc, san
+from chessbision.ky_hieu import dong_nuoc, san
 
 
 def test_doi_ky_hieu_viet():

@@ -1,6 +1,6 @@
 import pytest
 
-from phieu_co.nguon.lichess import doc_link
+from chessbision.nguon.lichess import doc_link
 
 
 @pytest.mark.parametrize("link, mong", [
