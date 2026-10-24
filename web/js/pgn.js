@@ -5,6 +5,8 @@
 // mà nó thay thế, giống python-chess: biến của nước đầu = các nước đầu khác.
 
 const KET_QUA = new Set(["1-0", "0-1", "1/2-1/2", "*"]);
+// Biến phụ lồng sâu hơn mức này thì coi là PGN lỗi (chặn tràn ngăn xếp khi kiểm cây).
+export const SAU_TOI_DA = 64;
 
 function* token(text) {
   let i = 0;
@@ -47,6 +49,7 @@ function* token(text) {
       continue;
     }
     const m = /^[^\s{}()\[\];$]+/.exec(text.slice(i, i + 200));
+    if (!m) { i++; continue; }                         // "}" hay "]" lạc: bỏ qua
     const w = m[0];
     i += w.length;
     if (KET_QUA.has(w)) { yield { t: "result", v: w }; continue; }
@@ -92,6 +95,7 @@ export function docPgn(text) {
       const line = stack[stack.length - 1];
       const goc = line[line.length - 1];
       if (!goc) { g.errors = g.errors || ["biến phụ đứng trước mọi nước đi"]; stack.push([]); continue; }
+      if (stack.length > SAU_TOI_DA) { g.errors = g.errors || [`biến phụ lồng sâu quá ${SAU_TOI_DA} tầng`]; stack.push([]); continue; }
       const bien = [];
       goc.variations.push(bien);
       stack.push(bien);

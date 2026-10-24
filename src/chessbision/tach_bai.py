@@ -17,7 +17,7 @@ logging.getLogger("chess.pgn").setLevel(logging.CRITICAL)  # lỗi PGN được 
 
 from .mo_hinh import Exercise, Notice, Worksheet
 
-_LENH = re.compile(r"\[%[^\]]*\]")   # [%cal …] [%csl …] [%eval …] [%clk …]
+_LENH = re.compile(r"\[%[^\[\]]*\]")   # [%cal …] [%csl …] [%eval …] [%clk …]
 _TEN_BEN = {"white": "Trắng", "black": "Đen"}
 
 

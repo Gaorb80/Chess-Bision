@@ -45,3 +45,12 @@ def test_nuoc_sai_luat_bi_bo():
     ws = tach(pgn)
     assert not ws.exercises
     assert ws.notices[0].code == "illegal"
+
+
+def test_binh_luan_nhieu_lenh_khong_treo():
+    import time
+    the = '[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]\n\n'
+    dau = time.monotonic()
+    ws = tach(the + "{ Đề " + "[%" * 200_000 + "} 1. Ra8# *")
+    assert time.monotonic() - dau < 2
+    assert len(ws.exercises) == 1

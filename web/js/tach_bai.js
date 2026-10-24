@@ -8,7 +8,7 @@
 import { Chess } from "../vendor/chess.js";
 import { docPgn } from "./pgn.js";
 
-const LENH = /\[%[^\]]*\]/g;   // [%cal …] [%csl …] [%eval …] [%clk …]
+const LENH = /\[%[^\[\]]*\]/g;   // [%cal …] [%csl …] [%eval …] [%clk …]
 export const TEN_BEN = { white: "Trắng", black: "Đen" };
 
 function tenChuong(h, so) {

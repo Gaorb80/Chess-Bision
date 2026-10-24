@@ -9,13 +9,15 @@ import { TEN_BEN } from "./tach_bai.js";
 
 const $ = (id) => document.getElementById(id);
 const LUU = "chessbision.tuy-chon";
+const PGN_TOI_DA = 20 * 1024 * 1024;   // ký tự; study Lichess lớn nhất chỉ vài trăm KB
+const BAI_TOI_DA = 500;                // nhiều hơn thì trang xem trước quá nặng
 
 let ws = null;            // phiếu vừa tách
 let chon = [];            // chon[i]: có in bài i không
 let quanSvg = null;
 
 const bao = (el, loai, text) => { el.innerHTML = text ? `<div class="tt ${loai}">${text}</div>` : ""; };
-const thoat = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const thoat = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 async function taiQuanSvg() {
   if (!quanSvg) {
@@ -29,7 +31,15 @@ async function taiQuanSvg() {
 
 async function moPgn(text, nguon) {
   const tt = $("trang-thai");
+  if (text.length > PGN_TOI_DA) {
+    bao(tt, "loi", "Nội dung PGN quá lớn (hơn 20 MB). Hãy dùng PGN của một study.");
+    return;
+  }
   const kq = tach(text, { nguon });
+  if (kq.exercises.length > BAI_TOI_DA) {
+    kq.notices.unshift({ code: "qua-nhieu", chapter: `${kq.exercises.length} bài`, message: `Chỉ lấy ${BAI_TOI_DA} bài đầu tiên.` });
+    kq.exercises = kq.exercises.slice(0, BAI_TOI_DA);
+  }
   if (!kq.exercises.length) {
     const ly = kq.notices.length ? " " + kq.notices.slice(0, 3).map((n) => `${thoat(n.chapter)}: ${thoat(n.message)}`).join(" · ") : "";
     bao(tt, "loi", `Không tìm thấy bài nào có thế cờ bắt đầu để in.${ly}`);
@@ -72,7 +82,7 @@ async function layTuLink(link) {
 
 async function layTuFile(file) {
   const tt = $("trang-thai");
-  if (file.size > 20 * 1024 * 1024) {
+  if (file.size > PGN_TOI_DA) {
     bao(tt, "loi", "File quá lớn (hơn 20 MB). Hãy chọn file PGN của một study.");
     return;
   }
@@ -92,6 +102,7 @@ const TEN_THONG_BAO = {
   "illegal": "Bỏ qua (nước đi sai luật)",
   "multi-solution": "Nhiều đáp án",
   "no-moves": "Chưa có đáp án",
+  "qua-nhieu": "Quá nhiều bài",
 };
 
 async function veXemTruoc() {

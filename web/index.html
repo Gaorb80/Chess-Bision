@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Chỉ chạy mã của chính trang; chỉ được gọi mạng tới lichess.org. Kiểu inline cần cho SVG quân cờ; object-src blob: để thẻ "Mở PDF để in" hiện được PDF. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://lichess.org; object-src blob:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>ChessBision · In phiếu bài tập cờ vua</title>
 <meta name="description" content="Dán link study Lichess hoặc chọn file PGN, ra phiếu bài tập cờ vua PDF để in, có trang đáp án ở cuối.">
 <link rel="icon" href="tai-nguyen/quan/wN.svg" type="image/svg+xml">
