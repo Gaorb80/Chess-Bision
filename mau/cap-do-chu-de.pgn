@@ -1,0 +1,44 @@
+[Event "Bài theo cấp độ: Hậu chiếu hàng cuối"]
+[Result "*"]
+[StudyName "Bài theo cấp độ"]
+[ChapterName "Hậu chiếu hàng cuối"]
+[FEN "6k1/5ppp/8/8/8/8/5PPP/3Q2K1 w - - 0 1"]
+[SetUp "1"]
+[Level "★"]
+[Theme "Chiếu hết, Hàng cuối"]
+
+1. Qd8# *
+
+
+[Event "Bài theo cấp độ: Chiếu ngột Philidor"]
+[Result "*"]
+[StudyName "Bài theo cấp độ"]
+[ChapterName "Chiếu ngột Philidor"]
+[FEN "r6k/6pp/7N/8/8/1Q6/8/6K1 w - - 0 1"]
+[SetUp "1"]
+[Level "C"]
+[Theme "Chiếu hết; Hy sinh"]
+
+1. Qg8+ Rxg8 2. Nf7# *
+
+
+[Event "Bài theo cấp độ: Xe chiếu hàng cuối"]
+[Result "*"]
+[StudyName "Bài theo cấp độ"]
+[ChapterName "Xe chiếu hàng cuối"]
+[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]
+[SetUp "1"]
+[Level "2"]
+
+1. Ra8# *
+
+
+[Event "Bài theo cấp độ: Không ghi cấp độ"]
+[Result "*"]
+[StudyName "Bài theo cấp độ"]
+[ChapterName "Không ghi cấp độ"]
+[FEN "r5k1/5ppp/8/8/8/8/5PPP/6K1 b - - 0 1"]
+[SetUp "1"]
+[Level "dễ"]
+
+1... Ra1# *

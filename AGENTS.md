@@ -15,7 +15,9 @@ Người dùng viết tiếng Việt; trả lời tiếng Việt. Tên module, b
 
 ## Trang web (`web/`)
 
-- Bản JavaScript chạy trong trình duyệt, đăng lên GitHub Pages. Giữ cùng quy ước với bản Python: sửa luật tách bài ở một bên thì sửa cả bên kia và `tests/web/`.
+- Bản JavaScript chạy trong trình duyệt, đăng lên GitHub Pages. Giữ cùng quy ước với bản Python: sửa luật tách bài ở một bên thì sửa cả bên kia và `tests/web/`. Phép thử chung `tests/chung/` bắt hai bên ra cùng JSON; thêm PGN vào `mau/` thì chạy `tests/chung/cap_nhat.py`.
+- PDF (`pdf.js`) và Word (`docx.js`) cùng bố cục; sửa một bên thì sửa bên kia. Phiếu học sinh không chứa đáp án ở cả hai (có phép thử trong `tests/web/xuat.test.mjs`).
+- Mẫu phiếu và logo lưu trong `localStorage`; mọi mẫu đọc vào đều qua `chuanMau()`, logo chỉ nhận PNG/JPEG thật dưới 300 KB.
 - Luật cờ ở web do chess.js tính (cùng luật cứng như python-chess). Thư viện chép vào `web/vendor/`, không dùng CDN, không cần build.
 
 ## Bảo mật trang web

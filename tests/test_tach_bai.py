@@ -72,3 +72,29 @@ def test_json_doc_tay_bi_kiem_kieu():
         hong["exercises"][0][truong] = gia_tri
         with pytest.raises(SystemExit):
             Worksheet.from_json(json.dumps(hong))
+
+
+def test_cap_do_va_chu_de():
+    from chessbision.tach_bai import doc_cap_do, doc_chu_de
+
+    assert [doc_cap_do(s) for s in ("1", "3", "★★", "*", "b", "C", "", "4", "dễ", "★★★★")] == [1, 3, 2, 1, 2, 3, None, None, None, None]
+    assert doc_chu_de("Chiếu hết, Hàng cuối ; Hy sinh") == ["Chiếu hết", "Hàng cuối", "Hy sinh"]
+    bai = _ws("cap-do-chu-de.pgn").exercises
+    assert [e.level for e in bai] == [1, 3, 2, None]
+    assert bai[0].themes == ["Chiếu hết", "Hàng cuối"]
+
+
+def test_json_cap_do_sai_bi_tu_choi():
+    import json
+
+    import pytest
+
+    from chessbision.mo_hinh import Worksheet
+
+    ws = _ws("cap-do-chu-de.pgn")
+    assert Worksheet.from_json(ws.to_json()).exercises[1].level == 3
+    d = json.loads(ws.to_json())
+    for xau in (5, "2", True):
+        d["exercises"][0]["level"] = xau
+        with pytest.raises(SystemExit):
+            Worksheet.from_json(json.dumps(d))
