@@ -13,6 +13,11 @@ Người dùng viết tiếng Việt; trả lời tiếng Việt. Tên module, b
 - Kiểm thử không dùng mạng: thêm PGN thật vào `mau/` khi cần.
 - Tài nguyên ngoài phải ghi nguồn và giấy phép trong `src/chessbision/tai_nguyen/NGUON.md`.
 
+## Trang web (`web/`)
+
+- Bản JavaScript chạy trong trình duyệt, đăng lên GitHub Pages. Giữ cùng quy ước với bản Python: sửa luật tách bài ở một bên thì sửa cả bên kia và `tests/web/`.
+- Luật cờ ở web do chess.js tính (cùng luật cứng như python-chess). Thư viện chép vào `web/vendor/`, không dùng CDN, không cần build.
+
 ## Git
 
 Làm trên nhánh riêng, gửi PR để chủ repo duyệt. Không commit thẳng vào `main`.

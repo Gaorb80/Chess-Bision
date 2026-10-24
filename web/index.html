@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChessBision · In phiếu bài tập cờ vua</title>
+<meta name="description" content="Dán link study Lichess hoặc chọn file PGN, ra phiếu bài tập cờ vua PDF để in, có trang đáp án ở cuối.">
+<link rel="icon" href="tai-nguyen/quan/wN.svg" type="image/svg+xml">
+<link rel="stylesheet" href="app.css">
+<script src="vendor/fontkit.umd.min.js" defer></script>
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<header class="dau">
+  <div class="khung">
+    <h1><img src="tai-nguyen/quan/wN.svg" alt="" width="36" height="36"> ChessBision</h1>
+    <p>In phiếu bài tập cờ vua từ study Lichess hoặc file PGN. Mọi thứ chạy ngay trên máy của bạn, không cần cài đặt.</p>
+  </div>
+</header>
+
+<main class="khung">
+  <section class="buoc" id="buoc-1">
+    <h2><span class="so">1</span> Lấy bài tập</h2>
+    <form id="form-link" class="hang-nhap">
+      <label for="o-link" class="an">Link study Lichess</label>
+      <input id="o-link" type="text" inputmode="url" autocomplete="off" spellcheck="false"
+             placeholder="Dán link study Lichess, ví dụ https://lichess.org/study/TqmJP6yk">
+      <button type="submit" class="nut chinh" id="nut-lay">Lấy bài</button>
+    </form>
+    <div class="hoac">
+      <span>hoặc</span>
+      <label class="nut phu" for="o-file">Chọn file PGN…</label>
+      <input id="o-file" type="file" accept=".pgn,.txt,application/x-chess-pgn,text/plain" hidden>
+      <button type="button" class="nut lien-ket" id="nut-dan">Dán nội dung PGN</button>
+      <button type="button" class="nut lien-ket" id="nut-mau">Thử với bài mẫu</button>
+    </div>
+    <div id="khung-dan" hidden>
+      <label for="o-dan" class="an">Nội dung PGN</label>
+      <textarea id="o-dan" rows="7" spellcheck="false" placeholder="[Event &quot;…&quot;]&#10;[FEN &quot;…&quot;]&#10;&#10;1. Ra8# *"></textarea>
+      <button type="button" class="nut chinh" id="nut-doc-dan">Đọc PGN này</button>
+    </div>
+    <p class="tha" id="vung-tha">Có thể kéo thả file PGN vào trang này.</p>
+    <div id="trang-thai" role="status" aria-live="polite"></div>
+    <details class="huong-dan">
+      <summary>Link không chạy? Cách lấy file PGN từ Lichess</summary>
+      <ol>
+        <li>Mở study trên Lichess, bấm vào biểu tượng <b>Chia sẻ &amp; xuất</b> (dưới bàn cờ).</li>
+        <li>Chọn <b>Tải PGN của study</b> (cả study) hoặc <b>Tải PGN của chương</b>.</li>
+        <li>Quay lại đây, bấm <b>Chọn file PGN…</b> và chọn file vừa tải.</li>
+      </ol>
+      <p>Study để chế độ <b>Riêng tư</b> thì link không đọc được: đổi sang <b>Công khai</b> hoặc <b>Không công khai</b>, hoặc dùng cách tải file ở trên.</p>
+      <p>Mỗi chương có thế cờ bắt đầu là một bài. Nước đi chính của chương là đáp án; biến phụ ở nước đầu được ghi là “nước sai hay gặp”. Bình luận đầu chương (nếu có) là đề bài.</p>
+    </details>
+  </section>
+
+  <section class="buoc" id="buoc-2" hidden>
+    <h2><span class="so">2</span> Kiểm tra bài</h2>
+    <p id="tom-tat"></p>
+    <ul id="thong-bao" class="thong-bao"></ul>
+    <div class="cong-cu">
+      <label><input type="checkbox" id="o-hien-dap-an"> Hiện đáp án trên màn hình</label>
+      <span><button type="button" class="nut lien-ket" id="nut-chon-het">Chọn hết</button> · <button type="button" class="nut lien-ket" id="nut-bo-het">Bỏ chọn hết</button></span>
+    </div>
+    <div id="luoi" class="luoi"></div>
+  </section>
+
+  <section class="buoc" id="buoc-3" hidden>
+    <h2><span class="so">3</span> Tùy chọn và in</h2>
+    <div class="tuy-chon">
+      <label>Tiêu đề phiếu <input id="o-tieu-de" type="text"></label>
+      <label><span>Cấp độ <span class="goi-y">(không bắt buộc)</span></span> <input id="o-cap-do" type="text" placeholder="A, B, C…" maxlength="20"></label>
+      <label><span>Biên soạn <span class="goi-y">(in ở chân trang)</span></span> <input id="o-bien-soan" type="text" placeholder="Ví dụ: CLB Dream Chess"></label>
+      <fieldset>
+        <legend>Bố cục trang</legend>
+        <label class="chon"><input type="radio" name="bo-cuc" value="2x3" checked> 6 thế mỗi trang, có tọa độ a–h, 1–8</label>
+        <label class="chon"><input type="radio" name="bo-cuc" value="3x4"> 12 thế mỗi trang, không tọa độ</label>
+      </fieldset>
+      <label class="chon"><input type="checkbox" id="o-dap-an" checked> Kèm trang đáp án ở cuối file</label>
+    </div>
+    <div class="hanh-dong">
+      <button type="button" class="nut chinh lon" id="nut-tai">Tải PDF</button>
+      <button type="button" class="nut phu lon" id="nut-xem">Mở PDF để in</button>
+      <span id="trang-thai-pdf" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+</main>
+
+<footer class="chan khung">
+  <p>ChessBision · mã nguồn mở GPL-3.0 · <a href="https://github.com/Gaorb80/Chess-Bision">GitHub</a>.
+  Quân cờ cburnett (GPLv2+), phông Be Vietnam Pro (OFL), chess.js, pdf-lib. Dữ liệu study chỉ đọc từ Lichess, không gửi đi đâu khác.</p>
+</footer>
+</body>
+</html>

@@ -7,6 +7,14 @@ chessbision in https://lichess.org/study/TqmJP6yk
 chessbision in mau/chieu-het-1-nuoc.pgn --cap-do A --bien-soan "CLB Dream Chess"
 ```
 
+## Dùng trên web (cho giáo viên, không cần cài gì)
+
+Mở **https://gaorb80.github.io/Chess-Bision/**, dán link study Lichess (hoặc chọn file PGN), xem trước, chọn bố cục 6 hay 12 thế mỗi trang, bấm **Tải PDF**. Trang chạy hoàn toàn trong trình duyệt: lấy PGN thẳng từ Lichess, tạo PDF ngay trên máy, không có máy chủ riêng.
+
+Mã trang web ở `web/` (HTML + JavaScript thuần, không cần build): `pgn.js` đọc PGN, `tach_bai.js` tách bài theo đúng quy ước của bản Python (luật cờ do chess.js tính), `pdf.js` vẽ phiếu bằng pdf-lib. Chạy thử trên máy: `python -m http.server -d web 8000` rồi mở http://localhost:8000. Kiểm thử: `node --test tests/web/*.test.mjs`. Mỗi lần `main` thay đổi, workflow `.github/workflows/trang-web.yml` kiểm thử rồi đăng lại trang.
+
+## Dòng lệnh
+
 Đây là bản M0 trong [bản thiết kế kiến trúc](https://claude.ai/artifact/1fN3UKBiGdTSBCpR2kPPvt).
 
 ## Cài đặt
