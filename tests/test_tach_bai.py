@@ -45,3 +45,56 @@ def test_nuoc_sai_luat_bi_bo():
     ws = tach(pgn)
     assert not ws.exercises
     assert ws.notices[0].code == "illegal"
+
+
+def test_binh_luan_nhieu_lenh_khong_treo():
+    import time
+    the = '[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]\n\n'
+    dau = time.monotonic()
+    ws = tach(the + "{ Đề " + "[%" * 200_000 + "} 1. Ra8# *")
+    assert time.monotonic() - dau < 2
+    assert len(ws.exercises) == 1
+
+
+def test_json_doc_tay_bi_kiem_kieu():
+    import json
+
+    import pytest
+
+    from chessbision.mo_hinh import Worksheet
+
+    ws = tach('[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]\n\n1. Ra8# *')
+    assert Worksheet.from_json(ws.to_json()) == ws
+    d = json.loads(ws.to_json())
+    for truong, gia_tri in [("id", '1] #read("/etc/passwd") ['), ("points", "10]#x["), ("id", True),
+                            ("fen", "khong-phai-fen"), ("side_to_move", "red"), ("solution", [1])]:
+        hong = json.loads(json.dumps(d))
+        hong["exercises"][0][truong] = gia_tri
+        with pytest.raises(SystemExit):
+            Worksheet.from_json(json.dumps(hong))
+
+
+def test_cap_do_va_chu_de():
+    from chessbision.tach_bai import doc_cap_do, doc_chu_de
+
+    assert [doc_cap_do(s) for s in ("1", "3", "★★", "*", "b", "C", "", "4", "dễ", "★★★★")] == [1, 3, 2, 1, 2, 3, None, None, None, None]
+    assert doc_chu_de("Chiếu hết, Hàng cuối ; Hy sinh") == ["Chiếu hết", "Hàng cuối", "Hy sinh"]
+    bai = _ws("cap-do-chu-de.pgn").exercises
+    assert [e.level for e in bai] == [1, 3, 2, None]
+    assert bai[0].themes == ["Chiếu hết", "Hàng cuối"]
+
+
+def test_json_cap_do_sai_bi_tu_choi():
+    import json
+
+    import pytest
+
+    from chessbision.mo_hinh import Worksheet
+
+    ws = _ws("cap-do-chu-de.pgn")
+    assert Worksheet.from_json(ws.to_json()).exercises[1].level == 3
+    d = json.loads(ws.to_json())
+    for xau in (5, "2", True):
+        d["exercises"][0]["level"] = xau
+        with pytest.raises(SystemExit):
+            Worksheet.from_json(json.dumps(d))

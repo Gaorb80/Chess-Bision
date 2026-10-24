@@ -69,6 +69,15 @@ function but(page, f) {
     anh(img, x, y, w, h) {
       page.drawImage(img, { x: x * PT, y: Y(y + h), width: w * PT, height: h * PT });
     },
+    // ngôi sao năm cánh đặc, (x, y) là góc trên bên trái, r: bán kính (mm)
+    sao(x, y, r) {
+      const R = r * PT;
+      const d = Array.from({ length: 10 }, (_, k) => {
+        const g = (-90 + k * 36) * Math.PI / 180, rr = k % 2 ? R * 0.42 : R;
+        return `${k ? "L" : "M"}${(R + Math.cos(g) * rr).toFixed(2)} ${(R + Math.sin(g) * rr).toFixed(2)}`;
+      }).join(" ") + " Z";
+      page.drawSvgPath(d, { x: x * PT, y: Y(y), color: DEN, borderWidth: 0 });
+    },
   };
 }
 
@@ -94,10 +103,20 @@ function veBanCo(b, quan, e, x, y, canh, toaDo) {
 
 const dauTrangCao = (de) => LE_TREN + (de ? 15 : 10) + 4;
 
-function dauTrang(b, f, { tieuDe, de, hoTen }) {
-  const x1 = LE_NGANG, x2 = RONG - LE_NGANG;
+const LOGO_CAO = 12;     // mm
+
+function dauTrang(b, f, { tieuDe, de, hoTen, sao = 0 }) {
+  const x2 = RONG - LE_NGANG;
+  let x1 = LE_NGANG;
   const day = LE_TREN + (de && hoTen ? 15 : 10);
-  b.chu(tieuDe, x1, LE_TREN + 6, { co: 15, dam: true });
+  if (f.logo && hoTen) {
+    const w = Math.min(30, LOGO_CAO * f.logo.width / f.logo.height);
+    const h = w * f.logo.height / f.logo.width;
+    b.anh(f.logo, x1, day - 1.5 - h, w, h);
+    x1 += w + 3;
+  }
+  const wTieuDe = b.chu(tieuDe, x1, LE_TREN + 6, { co: 15, dam: true });
+  for (let i = 0; i < sao; i++) b.sao(x1 + wTieuDe + 2.5 + i * 4.6, LE_TREN + 1.6, 2);
   if (de && hoTen) b.chu(de, x1, LE_TREN + 12, { co: 10.5 });
   if (hoTen) {
     const cham = (xa, xb, y) => b.duong(xa, y, xb, y, { day: 0.7, cham: true });
@@ -111,7 +130,7 @@ function dauTrang(b, f, { tieuDe, de, hoTen }) {
     b.chu("Lớp:", xLop - 15 - 1, y, { co: 9, phai: true });
     cham(xLop - 15, xLop, y);
   }
-  b.duong(x1, day, x2, day, { day: 1 });
+  b.duong(LE_NGANG, day, x2, day, { day: 1 });
   return day + 4;
 }
 
@@ -135,7 +154,7 @@ function trangPhieu(doc, f, quan, ws, ch, tieuDe) {
     const page = doc.addPage([RONG * PT, CAO * PT]);
     trang.push(page);
     const b = but(page, f);
-    const y0 = dauTrang(b, f, { tieuDe, de, hoTen: true });
+    const y0 = dauTrang(b, f, { tieuDe, de, hoTen: true, sao: ch.sao || 0 });
     ws.exercises.slice(dau, dau + moiTrang).forEach((e, i) => {
       const c = i % cot;
       const x = LE_NGANG + c * (canh + khe);
@@ -214,6 +233,7 @@ function trangDapAn(doc, f, ws, ch, tieuDe) {
 }
 
 // tai: { thuong, dam: bytes TTF; quan: { wK: bytes PNG, … } }; fontkit: thư viện @pdf-lib/fontkit
+// ch: { tieuDe, capDo, bienSoan, boCuc, dapAn, sao: 0–3 ngôi sao cấp độ, logo: { loai: "png"|"jpeg", bytes } | null }
 export async function taoPdf(ws, ch, tai, fontkit) {
   if (!ws.exercises.length) throw new Error("Chưa có bài nào để in.");
   const doc = await PDFDocument.create();
@@ -222,6 +242,7 @@ export async function taoPdf(ws, ch, tai, fontkit) {
     thuong: await doc.embedFont(tai.thuong, { subset: true }),
     dam: await doc.embedFont(tai.dam, { subset: true }),
   };
+  if (ch.logo) f.logo = ch.logo.loai === "png" ? await doc.embedPng(ch.logo.bytes) : await doc.embedJpg(ch.logo.bytes);
   const quan = {};
   for (const [ten, png] of Object.entries(tai.quan)) quan[ten] = await doc.embedPng(png);
   const tieuDe = chuan((ch.tieuDe || ws.title || "Phiếu bài tập") + (ch.capDo ? ` · Cấp độ ${ch.capDo}` : ""));

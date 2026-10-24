@@ -32,5 +32,6 @@ export async function taiPgn({ study, chuong }, { lan = 0 } = {}) {
     throw new LoiLichess("Lichess không cho xem study này: có thể link sai, hoặc study đang để Riêng tư. Đổi study sang Công khai / Không công khai, hoặc tải file PGN rồi chọn file đó.");
   }
   if (!r.ok) throw new LoiLichess(`Lichess trả lỗi ${r.status}. Thử lại sau, hoặc dùng file PGN.`);
+  if (+r.headers.get("content-length") > 20 * 1024 * 1024) throw new LoiLichess("Study quá lớn để đọc trong trình duyệt. Hãy tải PGN của từng chương.");
   return await r.text();
 }

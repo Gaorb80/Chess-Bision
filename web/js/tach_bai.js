@@ -8,7 +8,7 @@
 import { Chess } from "../vendor/chess.js";
 import { docPgn } from "./pgn.js";
 
-const LENH = /\[%[^\]]*\]/g;   // [%cal …] [%csl …] [%eval …] [%clk …]
+const LENH = /\[%[^\[\]]*\]/g;   // [%cal …] [%csl …] [%eval …] [%clk …]
 export const TEN_BEN = { white: "Trắng", black: "Đen" };
 
 function tenChuong(h, so) {
@@ -125,11 +125,24 @@ export function tach(pgnText, { boTrung = true, nguon = {} } = {}) {
       points_set: diem !== null,
       title: ten,
       source_url: url,
+      level: docCapDo(h.Level || ""),
+      themes: docChuDe(h.Theme || ""),
     });
     daCo.set(khoa, bai.length);
   }
   return { kind: "worksheet", title: tenStudy, exercises: bai, notices: bao, source: nguon };
 }
+
+// Tag [Level] → 1–3. Nhận "1".."3", "★".."★★★" (hoặc "*"), "A".."C"; khác thì null.
+export function docCapDo(giaTri) {
+  const s = giaTri.trim().toUpperCase();
+  if (/^[123]$/.test(s)) return +s;
+  if (/^[★*]{1,3}$/.test(s)) return s.length;
+  return { A: 1, B: 2, C: 3 }[s] ?? null;
+}
+
+// Tag [Theme "Chiếu hết, Đòn phối hợp"] → danh sách chủ đề (tách bằng dấu phẩy hoặc chấm phẩy).
+export const docChuDe = (giaTri) => giaTri.split(/[,;]/).map((t) => t.trim()).filter(Boolean);
 
 // Nếu mọi bài cùng một đề thì in một lần ở đầu phiếu.
 export function deChung(exercises) {

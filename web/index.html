@@ -3,8 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Chỉ chạy mã của chính trang; chỉ được gọi mạng tới lichess.org. Kiểu inline cần cho SVG quân cờ; object-src blob: để thẻ "Mở PDF để in" hiện được PDF. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://lichess.org; object-src blob:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>ChessBision · In phiếu bài tập cờ vua</title>
-<meta name="description" content="Dán link study Lichess hoặc chọn file PGN, ra phiếu bài tập cờ vua PDF để in, có trang đáp án ở cuối.">
+<meta name="description" content="Dán link study Lichess hoặc chọn file PGN, ra phiếu bài tập cờ vua PDF hoặc Word để in, có trang đáp án ở cuối.">
 <link rel="icon" href="tai-nguyen/quan/wN.svg" type="image/svg+xml">
 <link rel="stylesheet" href="app.css">
 <script src="vendor/fontkit.umd.min.js" defer></script>
@@ -61,15 +64,55 @@
       <label><input type="checkbox" id="o-hien-dap-an"> Hiện đáp án trên màn hình</label>
       <span><button type="button" class="nut lien-ket" id="nut-chon-het">Chọn hết</button> · <button type="button" class="nut lien-ket" id="nut-bo-het">Bỏ chọn hết</button></span>
     </div>
+    <div class="cong-cu" id="cong-cu-cap-do" hidden>
+      <label>Chỉ chọn bài
+        <select id="o-loc-cap-do">
+          <option value="">mọi cấp độ</option>
+          <option value="1">cấp độ ★</option>
+          <option value="2">cấp độ ★★</option>
+          <option value="3">cấp độ ★★★</option>
+          <option value="0">chưa ghi cấp độ</option>
+        </select></label>
+      <button type="button" class="nut lien-ket" id="nut-xep">Xếp bài từ dễ đến khó</button>
+    </div>
     <div id="luoi" class="luoi"></div>
   </section>
 
   <section class="buoc" id="buoc-3" hidden>
     <h2><span class="so">3</span> Tùy chọn và in</h2>
+    <div class="mau-phieu">
+      <label for="o-mau">Mẫu phiếu</label>
+      <select id="o-mau"></select>
+      <button type="button" class="nut lien-ket" id="nut-luu-mau">Lưu thành mẫu…</button>
+      <button type="button" class="nut lien-ket" id="nut-xoa-mau" hidden>Xóa mẫu này</button>
+    </div>
+    <form id="khung-luu-mau" class="hang-nhap luu-mau" hidden>
+      <label for="o-ten-mau" class="an">Tên mẫu</label>
+      <input id="o-ten-mau" type="text" maxlength="60" placeholder="Tên mẫu, ví dụ: Phiếu CLB Dream Chess">
+      <button type="submit" class="nut chinh">Lưu mẫu</button>
+      <button type="button" class="nut phu" id="nut-huy-mau">Hủy</button>
+    </form>
+    <p class="goi-y nho">Mẫu giữ bố cục, trang đáp án, người biên soạn và logo, lưu ngay trên máy này để lần sau chọn lại.</p>
     <div class="tuy-chon">
       <label>Tiêu đề phiếu <input id="o-tieu-de" type="text"></label>
       <label><span>Cấp độ <span class="goi-y">(không bắt buộc)</span></span> <input id="o-cap-do" type="text" placeholder="A, B, C…" maxlength="20"></label>
+      <label><span>Sao cấp độ <span class="goi-y">(in cạnh tiêu đề)</span></span>
+        <select id="o-sao">
+          <option value="0">Không in sao</option>
+          <option value="1">★</option>
+          <option value="2">★★</option>
+          <option value="3">★★★</option>
+        </select></label>
       <label><span>Biên soạn <span class="goi-y">(in ở chân trang)</span></span> <input id="o-bien-soan" type="text" placeholder="Ví dụ: CLB Dream Chess"></label>
+      <div class="logo">
+        <span class="nhan-logo">Logo CLB <span class="goi-y">(PNG hoặc JPG, dưới 300 KB)</span></span>
+        <div class="hang-logo">
+          <img id="anh-logo" alt="Logo đang dùng" hidden>
+          <label class="nut phu" for="o-logo">Chọn ảnh…</label>
+          <input id="o-logo" type="file" accept="image/png,image/jpeg" hidden>
+          <button type="button" class="nut lien-ket" id="nut-bo-logo" hidden>Bỏ logo</button>
+        </div>
+      </div>
       <fieldset>
         <legend>Bố cục trang</legend>
         <label class="chon"><input type="radio" name="bo-cuc" value="2x3" checked> 6 thế mỗi trang, có tọa độ a–h, 1–8</label>
@@ -80,6 +123,7 @@
     <div class="hanh-dong">
       <button type="button" class="nut chinh lon" id="nut-tai">Tải PDF</button>
       <button type="button" class="nut phu lon" id="nut-xem">Mở PDF để in</button>
+      <button type="button" class="nut phu lon" id="nut-word">Tải Word</button>
       <span id="trang-thai-pdf" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -87,7 +131,7 @@
 
 <footer class="chan khung">
   <p>ChessBision · mã nguồn mở GPL-3.0 · <a href="https://github.com/Gaorb80/Chess-Bision">GitHub</a>.
-  Quân cờ cburnett (GPLv2+), phông Be Vietnam Pro (OFL), chess.js, pdf-lib. Dữ liệu study chỉ đọc từ Lichess, không gửi đi đâu khác.</p>
+  Quân cờ cburnett (GPLv2+), phông Be Vietnam Pro (OFL), chess.js, pdf-lib, docx. Dữ liệu study chỉ đọc từ Lichess, không gửi đi đâu khác.</p>
 </footer>
 </body>
 </html>

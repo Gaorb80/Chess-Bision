@@ -1,4 +1,4 @@
-// Giao diện: lấy PGN (link Lichess / file / dán) → tách bài → xem trước → tạo PDF.
+// Giao diện: lấy PGN (link Lichess / file / dán) → tách bài → xem trước → tạo PDF hoặc Word.
 
 import { tach } from "./tach_bai.js";
 import { docLink, taiPgn, LoiLichess } from "./lichess.js";
@@ -6,16 +6,21 @@ import { ve, TEN_QUAN } from "./so_do.js";
 import { dongNuoc } from "./ky_hieu.js";
 import { taoPdf } from "./pdf.js";
 import { TEN_BEN } from "./tach_bai.js";
+import { tatCaMau, luuMau, xoaMau, logoThanhDataUrl, dataUrlThanhLogo, capDoChung } from "./mau_phieu.js";
 
 const $ = (id) => document.getElementById(id);
 const LUU = "chessbision.tuy-chon";
+const PGN_TOI_DA = 20 * 1024 * 1024;   // ký tự; study Lichess lớn nhất chỉ vài trăm KB
+const BAI_TOI_DA = 500;                // nhiều hơn thì trang xem trước quá nặng
 
 let ws = null;            // phiếu vừa tách
 let chon = [];            // chon[i]: có in bài i không
 let quanSvg = null;
+let logo = null;          // { loai, bytes, url } logo CLB đang dùng
+let saoTay = false;       // giáo viên đã tự chọn số sao: không tự đổi nữa
 
 const bao = (el, loai, text) => { el.innerHTML = text ? `<div class="tt ${loai}">${text}</div>` : ""; };
-const thoat = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const thoat = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 async function taiQuanSvg() {
   if (!quanSvg) {
@@ -29,7 +34,15 @@ async function taiQuanSvg() {
 
 async function moPgn(text, nguon) {
   const tt = $("trang-thai");
+  if (text.length > PGN_TOI_DA) {
+    bao(tt, "loi", "Nội dung PGN quá lớn (hơn 20 MB). Hãy dùng PGN của một study.");
+    return;
+  }
   const kq = tach(text, { nguon });
+  if (kq.exercises.length > BAI_TOI_DA) {
+    kq.notices.unshift({ code: "qua-nhieu", chapter: `${kq.exercises.length} bài`, message: `Chỉ lấy ${BAI_TOI_DA} bài đầu tiên.` });
+    kq.exercises = kq.exercises.slice(0, BAI_TOI_DA);
+  }
   if (!kq.exercises.length) {
     const ly = kq.notices.length ? " " + kq.notices.slice(0, 3).map((n) => `${thoat(n.chapter)}: ${thoat(n.message)}`).join(" · ") : "";
     bao(tt, "loi", `Không tìm thấy bài nào có thế cờ bắt đầu để in.${ly}`);
@@ -37,6 +50,9 @@ async function moPgn(text, nguon) {
   }
   ws = kq;
   chon = ws.exercises.map(() => true);
+  saoTay = false;
+  $("cong-cu-cap-do").hidden = !ws.exercises.some((e) => e.level);
+  $("o-loc-cap-do").value = "";
   bao(tt, "tot", `Đã đọc ${ws.exercises.length} bài${ws.title ? ` từ “${thoat(ws.title)}”` : ""}. Kiểm tra ở bước 2 rồi tải PDF ở bước 3.`);
   const luu = docLuu();
   $("o-tieu-de").value = ws.title || "Phiếu bài tập";
@@ -72,7 +88,7 @@ async function layTuLink(link) {
 
 async function layTuFile(file) {
   const tt = $("trang-thai");
-  if (file.size > 20 * 1024 * 1024) {
+  if (file.size > PGN_TOI_DA) {
     bao(tt, "loi", "File quá lớn (hơn 20 MB). Hãy chọn file PGN của một study.");
     return;
   }
@@ -92,6 +108,7 @@ const TEN_THONG_BAO = {
   "illegal": "Bỏ qua (nước đi sai luật)",
   "multi-solution": "Nhiều đáp án",
   "no-moves": "Chưa có đáp án",
+  "qua-nhieu": "Quá nhiều bài",
 };
 
 async function veXemTruoc() {
@@ -102,13 +119,15 @@ async function veXemTruoc() {
   $("luoi").innerHTML = ws.exercises.map((e, i) => {
     const dapAn = e.solution.length ? dongNuoc(e.solution, e.side_to_move) : "(chưa có đáp án)";
     const hoac = e.alt_solutions.length ? ` (hoặc ${e.alt_solutions.join(", ")})` : "";
+    const sao = e.level ? `<span class="sao-bai" title="Cấp độ ${e.level}">${"★".repeat(e.level)}</span>` : "";
+    const chuDe = e.themes.length ? `<p class="chu-de">${thoat(e.themes.join(" · "))}</p>` : "";
     return `<div class="the-bai" data-i="${i}">
-      <label class="tren"><input type="checkbox" checked data-i="${i}" aria-label="In bài ${i + 1}">
+      <label class="tren"><input type="checkbox" ${chon[i] ? "checked" : ""} data-i="${i}" aria-label="In bài ${i + 1}">
         <span class="so-bai">${i + 1}.</span><span class="ben ${e.side_to_move}" title="${TEN_BEN[e.side_to_move]} đi"></span>
-        <span class="ten" title="${thoat(e.title)}">${thoat(e.title)}</span></label>
+        <span class="ten" title="${thoat(e.title)}">${thoat(e.title)}</span>${sao}</label>
       ${ve(e.fen, { lat: e.side_to_move === "black", toaDo: true, quan })}
       <p class="de">${e.task.startsWith(TEN_BEN[e.side_to_move]) ? "" : TEN_BEN[e.side_to_move] + " đi. "}${thoat(e.task)}</p>
-      <p class="dap-an">Đáp án: ${thoat(dapAn + hoac)}</p>
+      ${chuDe}<p class="dap-an">Đáp án: ${thoat(dapAn + hoac)}</p>
     </div>`;
   }).join("");
   danhSo();
@@ -122,6 +141,23 @@ function danhSo() {
     el.querySelector(".so-bai").textContent = chon[i] ? `${++so}.` : "–";
   });
   $("tom-tat").textContent = `${so} / ${ws.exercises.length} bài sẽ được in. Bỏ dấu chọn ở bài nào không muốn in.`;
+  if (!saoTay) $("o-sao").value = String(capDoChung(ws.exercises.filter((_, i) => chon[i])));
+}
+
+// Chọn đúng các bài một cấp độ ("0": bài chưa ghi cấp độ)
+function locCapDo(v) {
+  chon = ws.exercises.map((e) => v === "" || (e.level ?? 0) === +v);
+  document.querySelectorAll("#luoi input[type=checkbox]").forEach((c) => (c.checked = chon[+c.dataset.i]));
+  danhSo();
+}
+
+// Xếp ★ → ★★★, bài chưa ghi cấp độ ở cuối; cùng cấp độ thì giữ thứ tự cũ
+async function xepCapDo() {
+  const cap = ws.exercises.map((e, i) => ({ e, c: chon[i], i }));
+  cap.sort((a, b) => (a.e.level ?? 9) - (b.e.level ?? 9) || a.i - b.i);
+  ws.exercises = cap.map((x) => x.e);
+  chon = cap.map((x) => x.c);
+  await veXemTruoc();
 }
 
 // ---------- PDF ----------
@@ -163,19 +199,57 @@ function tuyChon() {
     bienSoan: $("o-bien-soan").value.trim(),
     boCuc: document.querySelector("input[name=bo-cuc]:checked").value,
     dapAn: $("o-dap-an").checked,
+    sao: +$("o-sao").value,
+    logo: logo && { loai: logo.loai, bytes: logo.bytes },
   };
 }
 
 const tenFile = (s) => (s || "phieu").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d")
   .replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase().slice(0, 60) || "phieu";
 
-async function taoFile() {
-  const ch = tuyChon();
+function baiDuocChon(ch) {
   luuTuyChon(ch);
   const bai = ws.exercises.filter((_, i) => chon[i]).map((e, i) => ({ ...e, id: i + 1 }));
   if (!bai.length) throw new Error("Chưa chọn bài nào để in.");
-  const bytes = await taoPdf({ ...ws, exercises: bai }, ch, await taiTaiNguyen(), window.fontkit);
+  return { ...ws, exercises: bai };
+}
+
+async function taoFile() {
+  const ch = tuyChon();
+  const bytes = await taoPdf(baiDuocChon(ch), ch, await taiTaiNguyen(), window.fontkit);
   return { blob: new Blob([bytes], { type: "application/pdf" }), ten: `${tenFile(ch.tieuDe || ws.title)}.pdf` };
+}
+
+function taiXuong(blob, ten) {
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement("a"), { href: url, download: ten });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+// Word: thư viện docx (~750 KB) chỉ tải khi bấm lần đầu
+async function lamWord() {
+  const tt = $("trang-thai-pdf");
+  const nut = $("nut-word");
+  nut.disabled = true;
+  bao(tt, "dang", "Đang tạo file Word…");
+  try {
+    const ch = tuyChon();
+    const phieu = baiDuocChon(ch);
+    const [D, { taoDocx }, quan] = await Promise.all([import("../vendor/docx.mjs"), import("./docx.js"), taiQuanSvg()]);
+    const banCo = (e, toaDo) => svgThanhPng(
+      ve(e.fen, { lat: e.side_to_move === "black", toaDo, quan }).replace("<svg ", '<svg width="600" height="600" '), 600);
+    const bytes = await taoDocx(phieu, ch, { banCo }, D);
+    const ten = `${tenFile(ch.tieuDe || ws.title)}.docx`;
+    taiXuong(new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }), ten);
+    bao(tt, "tot", `Đã tải ${thoat(ten)}. Mở bằng Word hoặc Google Docs để sửa chữ rồi in.`);
+  } catch (e) {
+    bao(tt, "loi", `Không tạo được file Word: ${thoat(e.message)}`);
+  } finally {
+    nut.disabled = false;
+  }
 }
 
 async function lamPdf(xem) {
@@ -187,16 +261,13 @@ async function lamPdf(xem) {
   bao(tt, "dang", "Đang tạo PDF…");
   try {
     const { blob, ten } = await taoFile();
-    const url = URL.createObjectURL(blob);
     if (tab) {
+      const url = URL.createObjectURL(blob);
       tab.location.href = url;
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } else {
-      const a = Object.assign(document.createElement("a"), { href: url, download: ten });
-      document.body.append(a);
-      a.click();
-      a.remove();
+      taiXuong(blob, ten);
     }
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
     bao(tt, "tot", xem ? "Đã mở PDF ở thẻ mới. Bấm biểu tượng máy in hoặc Ctrl+P để in." : `Đã tải ${thoat(ten)}.`);
   } catch (e) {
     if (tab) tab.close();
@@ -212,7 +283,61 @@ function docLuu() {
   try { return JSON.parse(localStorage.getItem(LUU)) || {}; } catch { return {}; }
 }
 function luuTuyChon(ch) {
-  try { localStorage.setItem(LUU, JSON.stringify({ bienSoan: ch.bienSoan, boCuc: ch.boCuc, dapAn: ch.dapAn })); } catch { /* không lưu được thì thôi */ }
+  try {
+    localStorage.setItem(LUU, JSON.stringify({ bienSoan: ch.bienSoan, boCuc: ch.boCuc, dapAn: ch.dapAn, mau: $("o-mau").value, logo: logo?.url || null }));
+  } catch { /* không lưu được thì thôi */ }
+}
+
+// ---------- mẫu phiếu và logo ----------
+
+function datLogo(url) {
+  const l = url ? dataUrlThanhLogo(url) : null;
+  logo = l && { ...l, url };
+  $("anh-logo").hidden = !logo;
+  if (logo) $("anh-logo").src = url;
+  else $("anh-logo").removeAttribute("src");
+  $("nut-bo-logo").hidden = !logo;
+}
+
+function veDanhSachMau(chonId) {
+  const ds = tatCaMau();
+  $("o-mau").innerHTML = ds.map((m) => `<option value="${thoat(m.id)}">${thoat(m.ten)}</option>`).join("");
+  if (chonId && ds.some((m) => m.id === chonId)) $("o-mau").value = chonId;
+  $("nut-xoa-mau").hidden = !!ds.find((m) => m.id === $("o-mau").value)?.coSan;
+}
+
+function apMau(id) {
+  const m = tatCaMau().find((x) => x.id === id);
+  if (!m) return;
+  const r = document.querySelector(`input[name=bo-cuc][value="${m.boCuc}"]`);
+  if (r) r.checked = true;
+  $("o-dap-an").checked = m.dapAn;
+  if (!m.coSan) { $("o-bien-soan").value = m.bienSoan; datLogo(m.logo); }
+  $("nut-xoa-mau").hidden = m.coSan;
+}
+
+async function chonLogo(file) {
+  const tt = $("trang-thai-pdf");
+  try {
+    datLogo(logoThanhDataUrl(new Uint8Array(await file.arrayBuffer())));
+    bao(tt, "", "");
+  } catch (e) {
+    bao(tt, "loi", thoat(e.message));
+  }
+}
+
+function luuMauMoi(ten) {
+  const tt = $("trang-thai-pdf");
+  try {
+    const ch = tuyChon();
+    const m = luuMau({ ten, boCuc: ch.boCuc, dapAn: ch.dapAn, bienSoan: ch.bienSoan, logo: logo?.url || null });
+    veDanhSachMau(m.id);
+    $("khung-luu-mau").hidden = true;
+    luuTuyChon(ch);
+    bao(tt, "tot", `Đã lưu mẫu “${thoat(m.ten)}” trên máy này.`);
+  } catch (e) {
+    bao(tt, "loi", thoat(e.message));
+  }
 }
 
 // ---------- gắn sự kiện ----------
@@ -232,6 +357,29 @@ const datHet = (v) => { chon = chon.map(() => v); document.querySelectorAll("#lu
 $("nut-chon-het").addEventListener("click", () => datHet(true));
 $("nut-bo-het").addEventListener("click", () => datHet(false));
 $("o-hien-dap-an").addEventListener("change", (ev) => document.body.classList.toggle("hien-dap-an", ev.target.checked));
+$("o-loc-cap-do").addEventListener("change", (ev) => locCapDo(ev.target.value));
+$("nut-xep").addEventListener("click", () => xepCapDo());
+$("o-sao").addEventListener("change", () => { saoTay = true; });
+$("o-mau").addEventListener("change", (ev) => apMau(ev.target.value));
+$("nut-luu-mau").addEventListener("click", () => {
+  $("khung-luu-mau").hidden = false;
+  const m = tatCaMau().find((x) => x.id === $("o-mau").value);
+  $("o-ten-mau").value = m && !m.coSan ? m.ten : "";
+  $("o-ten-mau").focus();
+});
+$("nut-huy-mau").addEventListener("click", () => { $("khung-luu-mau").hidden = true; });
+$("khung-luu-mau").addEventListener("submit", (ev) => { ev.preventDefault(); luuMauMoi($("o-ten-mau").value); });
+$("nut-xoa-mau").addEventListener("click", () => {
+  const m = tatCaMau().find((x) => x.id === $("o-mau").value);
+  if (!m || m.coSan) return;
+  xoaMau(m.id);
+  veDanhSachMau();
+  apMau($("o-mau").value);
+  bao($("trang-thai-pdf"), "tot", `Đã xóa mẫu “${thoat(m.ten)}”.`);
+});
+$("o-logo").addEventListener("change", (ev) => { if (ev.target.files[0]) chonLogo(ev.target.files[0]); ev.target.value = ""; });
+$("nut-bo-logo").addEventListener("click", () => datLogo(null));
+$("nut-word").addEventListener("click", () => lamWord());
 $("nut-tai").addEventListener("click", () => lamPdf(false));
 $("nut-xem").addEventListener("click", () => lamPdf(true));
 
@@ -249,6 +397,8 @@ addEventListener("drop", (ev) => {
 
 {
   const luu = docLuu();
+  veDanhSachMau(luu.mau);
+  datLogo(typeof luu.logo === "string" ? luu.logo : null);
   if (luu.boCuc) { const r = document.querySelector(`input[name=bo-cuc][value="${luu.boCuc}"]`); if (r) r.checked = true; }
   if (luu.dapAn === false) $("o-dap-an").checked = false;
   const link = new URLSearchParams(location.search).get("link");

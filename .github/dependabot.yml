@@ -1,0 +1,7 @@
+# Báo khi các GitHub Action đã ghim mã commit có bản mới (mở PR cập nhật).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

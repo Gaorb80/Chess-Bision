@@ -70,3 +70,31 @@ test("đọc link Lichess", () => {
   assert.deepEqual(docLink(" TqmJP6yk "), { study: "TqmJP6yk", chuong: null });
   assert.equal(docLink("https://lichess.org/abcdefgh"), null);
 });
+
+// PGN độc hại / hỏng không được làm treo hay sập trang (xem mục Bảo mật trong AGENTS.md).
+const THE = '[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]\n\n';
+
+test("dấu } hay ] lạc không làm sập", () => {
+  assert.deepEqual(tach(THE + "1. Ra8# } ] *").exercises[0].solution, ["Ra8#"]);
+});
+
+test("bình luận nhiều [% không làm treo", () => {
+  const dau = Date.now();
+  const ws = tach(THE + "{ Đề " + "[%".repeat(200_000) + "} 1. Ra8# *");
+  assert.ok(Date.now() - dau < 2000);
+  assert.equal(ws.exercises.length, 1);
+});
+
+test("biến phụ lồng quá sâu bị báo lỗi, không tràn ngăn xếp", () => {
+  const ws = tach(THE + "1. Ra8# " + "( 1. Rb1 ".repeat(50_000) + ")".repeat(50_000) + " *");
+  assert.equal(ws.exercises.length, 0);
+  assert.equal(ws.notices[0].code, "illegal");
+});
+
+test("cấp độ và chủ đề", async () => {
+  const { docCapDo, docChuDe } = await import("../../web/js/tach_bai.js");
+  assert.deepEqual(["1", "3", "★★", "*", "b", "C", "", "4", "dễ", "★★★★"].map(docCapDo), [1, 3, 2, 1, 2, 3, null, null, null, null]);
+  assert.deepEqual(docChuDe("Chiếu hết, Hàng cuối ; Hy sinh"), ["Chiếu hết", "Hàng cuối", "Hy sinh"]);
+  const bai = tach(mau("cap-do-chu-de.pgn")).exercises;
+  assert.deepEqual(bai.map((e) => e.level), [1, 3, 2, null]);
+});

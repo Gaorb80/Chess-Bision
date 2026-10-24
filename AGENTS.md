@@ -15,8 +15,17 @@ Người dùng viết tiếng Việt; trả lời tiếng Việt. Tên module, b
 
 ## Trang web (`web/`)
 
-- Bản JavaScript chạy trong trình duyệt, đăng lên GitHub Pages. Giữ cùng quy ước với bản Python: sửa luật tách bài ở một bên thì sửa cả bên kia và `tests/web/`.
+- Bản JavaScript chạy trong trình duyệt, đăng lên GitHub Pages. Giữ cùng quy ước với bản Python: sửa luật tách bài ở một bên thì sửa cả bên kia và `tests/web/`. Phép thử chung `tests/chung/` bắt hai bên ra cùng JSON; thêm PGN vào `mau/` thì chạy `tests/chung/cap_nhat.py`.
+- PDF (`pdf.js`) và Word (`docx.js`) cùng bố cục; sửa một bên thì sửa bên kia. Phiếu học sinh không chứa đáp án ở cả hai (có phép thử trong `tests/web/xuat.test.mjs`).
+- Mẫu phiếu và logo lưu trong `localStorage`; mọi mẫu đọc vào đều qua `chuanMau()`, logo chỉ nhận PNG/JPEG thật dưới 300 KB.
 - Luật cờ ở web do chess.js tính (cùng luật cứng như python-chess). Thư viện chép vào `web/vendor/`, không dùng CDN, không cần build.
+
+## Bảo mật trang web
+
+- Mọi chữ lấy từ PGN (tên chương, tag, bình luận) là dữ liệu không tin cậy: đưa vào HTML chỉ qua `thoat()` hoặc `textContent`. Không ghép chuỗi chưa thoát vào `innerHTML`.
+- `index.html` có Content-Security-Policy: chỉ chạy script của chính trang, chỉ gọi mạng tới `lichess.org`. Thêm nguồn mạng hay thư viện mới thì sửa CSP có chủ đích, không nới `script-src`.
+- Bộ đọc PGN phải chịu được PGN hỏng hoặc độc: giới hạn kích thước (20 MB), số bài (500), độ sâu biến phụ (64); regex không được chạy bậc hai. Có phép thử trong `tests/web/`.
+- Thư viện trong `web/vendor/` phải trùng byte với bản npm ghi trong `NGUON.md`. GitHub Action ghim theo mã commit; Dependabot báo bản mới.
 
 ## Git
 

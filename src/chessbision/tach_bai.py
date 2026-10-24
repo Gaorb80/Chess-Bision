@@ -17,7 +17,7 @@ logging.getLogger("chess.pgn").setLevel(logging.CRITICAL)  # lỗi PGN được 
 
 from .mo_hinh import Exercise, Notice, Worksheet
 
-_LENH = re.compile(r"\[%[^\]]*\]")   # [%cal …] [%csl …] [%eval …] [%clk …]
+_LENH = re.compile(r"\[%[^\[\]]*\]")   # [%cal …] [%csl …] [%eval …] [%clk …]
 _TEN_BEN = {"white": "Trắng", "black": "Đen"}
 
 
@@ -121,10 +121,27 @@ def tach(pgn_text: str, *, bo_trung: bool = True, nguon: dict | None = None) -> 
             points=diem,
             title=ten,
             source_url=url,
+            level=doc_cap_do(game.headers.get("Level", "")),
+            themes=doc_chu_de(game.headers.get("Theme", "")),
         ))
         da_co[khoa] = len(bai)
 
     return Worksheet(title=ten_study, exercises=bai, notices=bao, source=nguon or {})
+
+
+def doc_cap_do(gia_tri: str) -> int | None:
+    """Tag [Level] → 1–3. Nhận "1".."3", "★".."★★★" (hoặc "*"), "A".."C"; khác thì None."""
+    s = gia_tri.strip().upper()
+    if s in ("1", "2", "3"):
+        return int(s)
+    if s and set(s) <= {"★", "*"} and len(s) <= 3:
+        return len(s)
+    return {"A": 1, "B": 2, "C": 3}.get(s)
+
+
+def doc_chu_de(gia_tri: str) -> list[str]:
+    """Tag [Theme "Chiếu hết, Đòn phối hợp"] → danh sách chủ đề (tách bằng dấu phẩy hoặc chấm phẩy)."""
+    return [t.strip() for t in re.split(r"[,;]", gia_tri) if t.strip()]
 
 
 def de_chung(ws: Worksheet) -> str | None:
