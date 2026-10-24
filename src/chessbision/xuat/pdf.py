@@ -60,13 +60,13 @@ def _trang_phieu(ws: Worksheet, ch: CauHinh, thu_muc: Path, tieu_de: str) -> str
         o = []
         for e in ws.exercises[dau:dau + moi_trang]:
             lat = ch.huong == "ben-di" and e.side_to_move == "black"
-            (thu_muc / "so-do" / f"{e.id}.svg").write_text(so_do.ve(e.fen, lat=lat, toa_do=toa_do), encoding="utf-8")
+            (thu_muc / "so-do" / f"{int(e.id)}.svg").write_text(so_do.ve(e.fen, lat=lat, toa_do=toa_do), encoding="utf-8")
             mau = "black" if e.side_to_move == "black" else "white"
-            diem = f' + h(2mm) + text(size: 9pt)[#box(width: 8mm, repeat[.])/{e.points}]' if ch.diem else ""
-            dong = (f'text(weight: 600)[{e.id}.] + h(1.5mm) + box(baseline: -0.5pt, circle(radius: 3pt, fill: {mau}, stroke: 0.8pt)) '
+            diem = f' + h(2mm) + text(size: 9pt)[#box(width: 8mm, repeat[.])/{int(e.points)}]' if ch.diem else ""
+            dong = (f'text(weight: 600)[{int(e.id)}.] + h(1.5mm) + box(baseline: -0.5pt, circle(radius: 3pt, fill: {mau}, stroke: 0.8pt)) '
                     f'+ h(1.5mm) + box(width: 1fr, repeat[.]){diem}')
             de = f"text(size: 8.5pt, {_s(e.task)}), " if rieng_de else ""
-            o.append(f'block(breakable: false, stack(spacing: 1.5mm, image("so-do/{e.id}.svg", width: {canh}mm), {de}{dong}))')
+            o.append(f'block(breakable: false, stack(spacing: 1.5mm, image("so-do/{int(e.id)}.svg", width: {canh}mm), {de}{dong}))')
         phan.append(f"#grid(columns: ({', '.join([f'{canh}mm'] * cot)}), column-gutter: 1fr, row-gutter: {KHE_HANG}mm,\n  "
                     + ",\n  ".join(o) + ")\n")
     return "".join(phan)
@@ -81,11 +81,11 @@ def _trang_dap_an(ws: Worksheet, ch: CauHinh, tieu_de: str) -> str:
         ghi_chu = e.title
         if e.wrong_tries:
             ghi_chu += " · Nước sai hay gặp: " + ", ".join(san(n, ch.ky_hieu) for n in e.wrong_tries)
-        hang.append(f'[{e.id}], [{ten_ben(e.side_to_move)}], text(weight: 600, {_s(nuoc)}), [{e.points}], text(size: 8pt, fill: luma(90), {_s(ghi_chu)})')
+        hang.append(f'[{int(e.id)}], [{ten_ben(e.side_to_move)}], text(weight: 600, {_s(nuoc)}), [{int(e.points)}], text(size: 8pt, fill: luma(90), {_s(ghi_chu)})')
     return (f"#text(size: 15pt, weight: 600, {_s('Đáp án · ' + tieu_de)})\n#v(-2mm)#line(length: 100%, stroke: 1pt)\n#v(2mm)\n"
             "#table(columns: (auto, auto, 1fr, auto, auto), stroke: (x, y) => (bottom: 0.4pt + luma(170)), inset: (x: 2mm, y: 2.2mm),\n"
             "  table.header([*Bài*], [*Bên đi*], [*Đáp án*], [*Điểm*], [*Chương*]),\n  "
-            + ",\n  ".join(hang) + f",\n  [], [], align(right)[*Tổng*], [*{sum(e.points for e in ws.exercises)}*], [])\n")
+            + ",\n  ".join(hang) + f",\n  [], [], align(right)[*Tổng*], [*{sum(int(e.points) for e in ws.exercises)}*], [])\n")
 
 
 def _mo_dau(ch: CauHinh, nguon: str) -> str:

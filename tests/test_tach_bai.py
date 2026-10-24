@@ -54,3 +54,21 @@ def test_binh_luan_nhieu_lenh_khong_treo():
     ws = tach(the + "{ Đề " + "[%" * 200_000 + "} 1. Ra8# *")
     assert time.monotonic() - dau < 2
     assert len(ws.exercises) == 1
+
+
+def test_json_doc_tay_bi_kiem_kieu():
+    import json
+
+    import pytest
+
+    from chessbision.mo_hinh import Worksheet
+
+    ws = tach('[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]\n\n1. Ra8# *')
+    assert Worksheet.from_json(ws.to_json()) == ws
+    d = json.loads(ws.to_json())
+    for truong, gia_tri in [("id", '1] #read("/etc/passwd") ['), ("points", "10]#x["), ("id", True),
+                            ("fen", "khong-phai-fen"), ("side_to_move", "red"), ("solution", [1])]:
+        hong = json.loads(json.dumps(d))
+        hong["exercises"][0][truong] = gia_tri
+        with pytest.raises(SystemExit):
+            Worksheet.from_json(json.dumps(hong))
