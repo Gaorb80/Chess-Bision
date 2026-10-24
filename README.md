@@ -1,6 +1,6 @@
 # ChessBision
 
-In phiếu bài tập cờ vua từ **link study Lichess** hoặc **file PGN**: một lệnh, ra `phieu.pdf` cho học sinh và `dap-an.pdf` cho giáo viên.
+In phiếu bài tập cờ vua từ **link study Lichess** hoặc **file PGN**: một lệnh, ra `phieu.pdf` gồm các trang bài tập cho học sinh và trang đáp án ở cuối.
 
 ```bash
 chessbision in https://lichess.org/study/TqmJP6yk
@@ -34,9 +34,9 @@ Không cần cài LaTeX hay Typst riêng: gói `typst` trên PyPI có sẵn trì
 
 | Tham số | Mặc định | Khác |
 |---|---|---|
-| `--ky-hieu` | `vi` (Xa8#) | `quoc-te` (Ra8#) |
-| `--bo-cuc` | `2x3`, có tọa độ | `2x2`, `3x3`, `3x4` (12 thế, không tọa độ) |
-| `--dap-an` | `rieng` (dap-an.pdf) | `cung` (trang cuối), `khong` |
+| `--ky-hieu` | `quoc-te` (Ra8#) | `vi` (Xa8#) |
+| `--bo-cuc` | `2x3` (6 thế, có tọa độ) | `3x4` (12 thế, không tọa độ), `2x2`, `3x3` |
+| `--dap-an` | `cung` (trang cuối phieu.pdf) | `rieng` (dap-an.pdf), `khong` |
 | `--diem` | `khong` | `co`: ô điểm từng bài trên phiếu |
 | `--huong` | `ben-di` (bên phải đi ở dưới) | `trang` |
 | `--bo-trung` | `co` | `khong` |

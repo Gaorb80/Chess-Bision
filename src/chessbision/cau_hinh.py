@@ -25,9 +25,9 @@ class CauHinh:
     tieu_de: str = ""          # trống: lấy tên study
     cap_do: str = ""           # A / B / C … in cạnh tiêu đề
     bien_soan: str = ""        # chân trang "Biên soạn: …"
-    ky_hieu: str = "vi"        # vi: Xa8#  |  quoc-te: Ra8#
-    bo_cuc: str = "2x3"
-    dap_an: str = "rieng"      # rieng: dap-an.pdf | cung: trang cuối phieu.pdf | khong
+    ky_hieu: str = "quoc-te"   # quoc-te: Ra8#  |  vi: Xa8#
+    bo_cuc: str = "2x3"        # 2x3: 6 thế có tọa độ | 3x4: 12 thế không tọa độ
+    dap_an: str = "cung"       # cung: trang cuối phieu.pdf | rieng: dap-an.pdf | khong
     diem: bool = False         # in ô điểm trên phiếu học sinh
     huong: str = "ben-di"      # ben-di: bên phải đi ở dưới | trang: luôn Trắng dưới
     bo_trung: bool = True      # bỏ bài trùng thế cờ

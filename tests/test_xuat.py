@@ -23,7 +23,7 @@ def _text(f):
 
 def test_xuat_phieu_va_dap_an(tmp_path):
     ws = tach((MAU / "chieu-het-1-nuoc.pgn").read_text(encoding="utf-8"))
-    ch = cau_hinh.doc(None, bien_soan="CLB Dream Chess", cap_do="A")
+    ch = cau_hinh.doc(None, bien_soan="CLB Dream Chess", cap_do="A", dap_an="rieng", ky_hieu="vi")
     ra = pdf.xuat(ws, ch, tmp_path)
     assert [f.name for f in ra] == ["phieu.pdf", "dap-an.pdf"]
     phieu, dap_an = _text(ra[0]), _text(ra[1])
@@ -33,11 +33,19 @@ def test_xuat_phieu_va_dap_an(tmp_path):
     assert "1. Xa8#" in dap_an and "1... Xa1#" in dap_an and "Tổng" in dap_an
 
 
-def test_dap_an_cung_file_va_quoc_te(tmp_path):
-    ws = tach((MAU / "chieu-het-2-nuoc.pgn").read_text(encoding="utf-8"))
-    ch = cau_hinh.doc(None, dap_an="cung", ky_hieu="quoc-te", bo_cuc="3x4")
-    ra = pdf.xuat(ws, ch, tmp_path)
+def test_mac_dinh_dap_an_cung_file_quoc_te(tmp_path):
+    ws = tach((MAU / "chieu-het-1-nuoc.pgn").read_text(encoding="utf-8"))
+    ra = pdf.xuat(ws, cau_hinh.doc(None), tmp_path)
     assert [f.name for f in ra] == ["phieu.pdf"]
+    trang = [p.extract_text() for p in PdfReader(ra[0]).pages]
+    assert len(trang) == 3                            # 2 trang bài + 1 trang đáp án
+    assert not any("Ra8#" in t for t in trang[:2])     # trang bài không lộ đáp án
+    assert "1. Ra8#" in trang[2] and "1... Ra1#" in trang[2]
+
+
+def test_bo_cuc_12_the_khong_toa_do(tmp_path):
+    ws = tach((MAU / "chieu-het-2-nuoc.pgn").read_text(encoding="utf-8"))
+    ra = pdf.xuat(ws, cau_hinh.doc(None, bo_cuc="3x4"), tmp_path)
     assert "1. Qg8+ Rxg8 2. Nf7#" in _text(ra[0])
 
 
