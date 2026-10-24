@@ -1,0 +1,12 @@
+# Chép thành phieu-co.toml (cùng thư mục chạy lệnh) để cả CLB dùng chung một kiểu phiếu.
+# Tham số dòng lệnh ghi đè các giá trị ở đây.
+[phieu]
+bien_soan = "CLB Dream Chess"
+cap_do = ""          # A / B / C … in cạnh tiêu đề
+tieu_de = ""         # trống: lấy tên study
+ky_hieu = "vi"       # vi: Xa8#  |  quoc-te: Ra8#
+bo_cuc = "2x3"       # 2x2 | 2x3 | 3x3 (có tọa độ) | 3x4 (12 thế, không tọa độ)
+dap_an = "rieng"     # rieng: dap-an.pdf | cung: trang cuối phieu.pdf | khong
+diem = false         # in ô điểm từng bài trên phiếu học sinh
+huong = "ben-di"     # ben-di: bên phải đi ở dưới | trang: luôn Trắng dưới
+bo_trung = true      # bỏ bài trùng thế cờ
