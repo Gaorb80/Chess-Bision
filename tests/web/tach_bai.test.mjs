@@ -90,3 +90,11 @@ test("biến phụ lồng quá sâu bị báo lỗi, không tràn ngăn xếp", 
   assert.equal(ws.exercises.length, 0);
   assert.equal(ws.notices[0].code, "illegal");
 });
+
+test("cấp độ và chủ đề", async () => {
+  const { docCapDo, docChuDe } = await import("../../web/js/tach_bai.js");
+  assert.deepEqual(["1", "3", "★★", "*", "b", "C", "", "4", "dễ", "★★★★"].map(docCapDo), [1, 3, 2, 1, 2, 3, null, null, null, null]);
+  assert.deepEqual(docChuDe("Chiếu hết, Hàng cuối ; Hy sinh"), ["Chiếu hết", "Hàng cuối", "Hy sinh"]);
+  const bai = tach(mau("cap-do-chu-de.pgn")).exercises;
+  assert.deepEqual(bai.map((e) => e.level), [1, 3, 2, null]);
+});

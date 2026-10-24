@@ -22,6 +22,8 @@ class Exercise:
     points: int = 10
     title: str = ""              # tên chương
     source_url: str = ""
+    level: int | None = None     # 1–3 (★ đến ★★★), từ tag [Level]; None: chưa ghi
+    themes: list[str] = field(default_factory=list)  # chủ đề, từ tag [Theme]
 
 
 @dataclass
@@ -84,6 +86,10 @@ def _doc_bai(e, i: int) -> Exercise:
     for k in ("solution", "alt_solutions", "wrong_tries"):
         for n in _kiem(getattr(bai, k), list, f"exercises[{i}].{k}"):
             _kiem(n, str, f"exercises[{i}].{k}")
+    for n in _kiem(bai.themes, list, f"exercises[{i}].themes"):
+        _kiem(n, str, f"exercises[{i}].themes")
+    if bai.level is not None and (_kiem(bai.level, int, f"exercises[{i}].level") not in (1, 2, 3)):
+        raise TypeError(f"exercises[{i}].level phải là 1, 2, 3 hoặc null")
     if bai.side_to_move not in ("white", "black"):
         raise TypeError(f"exercises[{i}].side_to_move phải là white hoặc black")
     try:

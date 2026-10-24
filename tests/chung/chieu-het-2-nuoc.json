@@ -1,0 +1,27 @@
+{
+  "title": "Chiếu hết 2 nước",
+  "exercises": [
+    {
+      "id": 1,
+      "fen": "r6k/6pp/7N/8/8/1Q6/8/6K1 w - - 0 1",
+      "side_to_move": "white",
+      "task": "Trắng đi. Hy sinh Hậu rồi chiếu hết bằng Mã.",
+      "task_auto": false,
+      "solution": [
+        "Qg8+",
+        "Rxg8",
+        "Nf7#"
+      ],
+      "alt_solutions": [],
+      "wrong_tries": [
+        "Nf7+"
+      ],
+      "points": 20,
+      "title": "Chiếu ngột Philidor",
+      "source_url": "https://lichess.org/study/MauPhieu/Chuong10",
+      "level": null,
+      "themes": []
+    }
+  ],
+  "notices": []
+}
