@@ -1,0 +1,98 @@
+[Event "Chiếu hết 1 nước: Xe chiếu hàng cuối"]
+[Site "https://lichess.org/study/MauPhieu/Chuong01"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Xe chiếu hàng cuối"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong01"]
+[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]
+[SetUp "1"]
+[Orientation "white"]
+
+1. Ra8# { [%cal Ga1a8] } *
+
+
+[Event "Chiếu hết 1 nước: Đen chiếu hàng cuối"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Đen chiếu hàng cuối"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong02"]
+[FEN "r5k1/5ppp/8/8/8/8/5PPP/6K1 b - - 0 1"]
+[SetUp "1"]
+[Orientation "black"]
+
+1... Ra1# *
+
+
+[Event "Chiếu hết 1 nước: Hậu và Vua"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Hậu và Vua"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong03"]
+[FEN "7k/8/6K1/8/8/8/8/Q7 w - - 0 1"]
+[SetUp "1"]
+
+1. Qg7# *
+
+
+[Event "Chiếu hết 1 nước: Mã chiếu ngột"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Mã chiếu ngột"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong04"]
+[FEN "6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1"]
+[SetUp "1"]
+
+1. Nf7# *
+
+
+[Event "Chiếu hết 1 nước: Mã đen chiếu ngột"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Mã đen chiếu ngột"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong05"]
+[FEN "6k1/8/8/8/6n1/8/6PP/6RK b - - 0 1"]
+[SetUp "1"]
+
+1... Nf2# *
+
+
+[Event "Chiếu hết 1 nước: Xe và Vua"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Xe và Vua"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong06"]
+[FEN "k7/8/1K6/8/8/8/8/7R w - - 0 1"]
+[SetUp "1"]
+
+1. Rh8# ( 1. Ra1+ { Vua thoát lên b8. } ) *
+
+
+[Event "Chiếu hết 1 nước: Phong cấp"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Phong cấp"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong07"]
+[FEN "k7/2P5/1K6/8/8/8/8/8 w - - 0 1"]
+[SetUp "1"]
+
+1. c8=Q# *
+
+
+[Event "Chiếu hết 1 nước: Trùng bài 1"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Trùng bài 1"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong08"]
+[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 4 30"]
+[SetUp "1"]
+
+30. Ra8# *
+
+
+[Event "Chiếu hết 1 nước: Ván mẫu Italia"]
+[Result "*"]
+[StudyName "Chiếu hết 1 nước"]
+[ChapterName "Ván mẫu Italia"]
+[ChapterURL "https://lichess.org/study/MauPhieu/Chuong09"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nd4 4. Nxe5 Qg5 5. Nxf7 Qxg2 6. Rf1 Qxe4+ 7. Be2 Nf3# *
