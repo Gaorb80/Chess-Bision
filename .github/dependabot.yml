@@ -1,7 +1,15 @@
 # Báo khi các GitHub Action đã ghim mã commit có bản mới (mở PR cập nhật).
+# Mỗi tháng một PR gộp các bản vá / bản nhỏ. Bản nâng lớn (v4 → v5…) bỏ qua:
+# có thể đổi cách chạy, nhất là bước đăng trang vốn không được kiểm khi mở PR.
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      github-actions:
+        patterns: ["*"]
