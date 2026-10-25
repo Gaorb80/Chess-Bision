@@ -1,0 +1,49 @@
+[Event "Phòng thủ chủ động: Thế cờ 1"]
+[Site "https://lichess.org/study/abcdEFGH/aaaaaaaa"]
+[ChapterName "🧠 Thế cờ 1"]
+[StudyName "Phòng thủ chủ động"]
+[SetUp "1"]
+[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]
+
+{ Thế cờ này lấy từ một ván cờ nhanh trên mạng giữa hai kỳ thủ có hệ số trên 2000. Đen vừa thí một quân để lấy hai tốt và mở toang cánh Vua của Trắng, nhưng lại quên mất hàng ngang cuối của chính mình. Hãy quan sát kỹ: ba con tốt f7, g7, h7 vẫn đứng yên tại chỗ, Vua đen không có ô thoát nào, và mọi quân đen khác đều ở quá xa để kịp quay về che chắn. Trước khi tìm nước đi, hãy tự hỏi: quân nào của Trắng đang có đường mở tới hàng tám? Đâu là ô mà Đen không kiểm soát được? Nếu Trắng đi sai, Đen sẽ có thời gian đưa Vua ra ô h6 hoặc đẩy tốt h tạo lỗ thở, và ưu thế sẽ tan biến. Đây là bài học quan trọng về hàng ngang cuối mà người mới học hay bỏ qua: luôn kiểm tra xem Vua của mình có lỗ thở hay chưa, và luôn tìm cách khai thác hàng ngang cuối của đối phương. Trắng đi và chiếu hết ngay lập tức. Hãy ghi nước đi bằng ký hiệu quốc tế. }
+1. Ra8# *
+
+[Event "Phòng thủ chủ động: 👑 Bài tập"]
+[Site "https://lichess.org/study/abcdEFGH/bbbbbbbb"]
+[ChapterName "👑 Bài tập"]
+[StudyName "Phòng thủ chủ động"]
+[SetUp "1"]
+[FEN "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 3"]
+
+{ Trắng đi. Hãy tìm nước thắng nhanh nhất, ghi lại rồi xem chương Đáp án. }
+*
+
+[Event "Phòng thủ chủ động: 👑 Đáp án"]
+[Site "https://lichess.org/study/abcdEFGH/cccccccc"]
+[ChapterName "👑 Đáp án"]
+[StudyName "Phòng thủ chủ động"]
+[SetUp "1"]
+[FEN "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 3"]
+
+{ Đáp án cho bài tập trước. }
+1. Qxf7# ( 1. Bxf7+ Ke7 ) *
+
+[Event "Phòng thủ chủ động: 🧠 Bài tập cuối"]
+[Site "https://lichess.org/study/abcdEFGH/dddddddd"]
+[ChapterName "🧠 Bài tập cuối"]
+[StudyName "Phòng thủ chủ động"]
+[SetUp "1"]
+[FEN "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"]
+
+{ Thế cờ cuối ván. Hãy chơi tiếp với bạn để xem có thắng được không. }
+*
+
+[Event "Phòng thủ chủ động: 🧗 Phân tích dài"]
+[Site "https://lichess.org/study/abcdEFGH/eeeeeeee"]
+[ChapterName "🧗 Phân tích dài"]
+[StudyName "Phòng thủ chủ động"]
+[SetUp "1"]
+[FEN "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"]
+
+{ Hãy ghi lại phương án phát triển quân hợp lý cho cả hai bên trong sáu nước tiếp theo. }
+2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O *

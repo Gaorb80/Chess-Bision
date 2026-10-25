@@ -9,8 +9,10 @@ import { dongNuoc } from "./ky_hieu.js";
 
 // bố cục: số cột, số hàng, có tọa độ
 export const BO_CUC = {
-  "2x3": { cot: 2, hang: 3, toaDo: true },
-  "3x4": { cot: 3, hang: 4, toaDo: false },
+// dongToiDa: số dòng trả lời nhiều nhất dưới mỗi sơ đồ (thêm dòng thì sơ đồ nhỏ đi)
+  "2x2": { cot: 2, hang: 2, toaDo: true, dongToiDa: 4 },
+  "2x3": { cot: 2, hang: 3, toaDo: true, dongToiDa: 2 },
+  "3x4": { cot: 3, hang: 4, toaDo: false, dongToiDa: 1 },
 };
 
 // khổ A4, lề (mm); dùng chung với docx.js. Mọi nét, kể cả chân trang, cách mép giấy ít nhất
@@ -18,16 +20,38 @@ export const BO_CUC = {
 export const RONG = 210, CAO = 297;
 export const VUNG_AN_TOAN = 15;
 export const LE_NGANG = 18, LE_TREN = 18, LE_DUOI = 26;   // LE_DUOI: hết phần thân; chân trang nằm trong lề này
+// Lề gáy: chừa LE_GAY ở mép đóng ghim / đóng gáy, để tiêu đề không nằm trong góc ghim 25 × 25 mm.
+//   trai: mép trái mọi trang (in một mặt, ghim góc trái) · guong: trái ở trang lẻ, phải ở trang chẵn
+//   (in hai mặt) · khong: hai bên đều LE_NGANG.
+export const LE_GAY = 25;
+export const KIEU_GAY = ["trai", "guong", "khong"];
+export function leTrang(gay, i) {
+  const trong = gay === "khong" ? LE_NGANG : LE_GAY;
+  return gay === "guong" && i % 2 ? { trai: LE_NGANG, phai: trong } : { trai: trong, phai: LE_NGANG };
+}
+export const rongThan = (gay) => RONG - LE_NGANG - (gay === "khong" ? LE_NGANG : LE_GAY);
 const KHE_COT = 12, KHE_HANG = 6;
+export const KHE_DONG_TRA_LOI = 6;   // mm giữa hai dòng chấm trả lời
 const PT = 72 / 25.4;
 const DEN = rgb(0, 0, 0);
 const XAM = (l) => rgb(l / 255, l / 255, l / 255);
 
 const chuan = (s) => (s || "").normalize("NFC");
 
+// Bỏ emoji và ký tự ghép emoji khỏi chữ lấy từ PGN: phông in không có glyph, PDF hiện ô trống.
+const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0E}\u{FE0F}\u{200D}\u{20E3}]/gu;
+export const nhanIn = (s) => chuan(s).replace(EMOJI, "").replace(/\s+/g, " ").trim();
+
+// Số dòng chấm để học sinh ghi lời giải: theo độ dài đáp án (bài chưa có đáp án coi như bài phân tích),
+// không quá dongToiDa của bố cục.
+export function soDongTraLoi(e, toiDa = 4) {
+  const n = e.solution.length;
+  return Math.min(toiDa, !n || n > 9 ? 4 : n > 3 ? 2 : 1);
+}
+
 // Cạnh sơ đồ (mm) vừa cả chiều ngang lẫn phần trang còn lại dưới tiêu đề (từ y0).
-function canhBanCo(cot, hang, them, y0) {
-  const rong = (RONG - 2 * LE_NGANG - KHE_COT * (cot - 1)) / cot;
+function canhBanCo(cot, hang, them, y0, rongND) {
+  const rong = (rongND - KHE_COT * (cot - 1)) / cot;
   const cao = (CAO - LE_DUOI - 2 - y0 - KHE_HANG * (hang - 1)) / hang - them;
   return Math.floor(Math.min(rong, cao) * 10) / 10;
 }
@@ -35,9 +59,18 @@ function canhBanCo(cot, hang, them, y0) {
 function ngatDong(font, co, text, rong) {
   const dong = [];
   let hien = "";
-  for (const tu of chuan(text).split(/\s+/).filter(Boolean)) {
+  const vua = (t) => font.widthOfTextAtSize(t, co) <= rong * PT;
+  for (let tu of chuan(text).split(/\s+/).filter(Boolean)) {
+    // từ dài hơn cả dòng (link, chuỗi nước đi liền): cắt theo ký tự để không tràn ra lề
+    while (!vua(tu)) {
+      if (hien) { dong.push(hien); hien = ""; }
+      let k = tu.length - 1;
+      while (k > 1 && !vua(tu.slice(0, k))) k--;
+      dong.push(tu.slice(0, k));
+      tu = tu.slice(k);
+    }
     const thu = hien ? hien + " " + tu : tu;
-    if (!hien || font.widthOfTextAtSize(thu, co) <= rong * PT) hien = thu;
+    if (!hien || vua(thu)) hien = thu;
     else { dong.push(hien); hien = tu; }
   }
   if (hien) dong.push(hien);
@@ -50,7 +83,7 @@ function but(page, f) {
   return {
     chu(text, x, y, { co = 10, dam = false, mau = DEN, phai = false, giua = false } = {}) {
       const font = dam ? f.dam : f.thuong;
-      const t = chuan(text);
+      const t = chuan(text).replace(EMOJI, "");
       const w = font.widthOfTextAtSize(t, co) / PT;
       const x0 = phai ? x - w : giua ? x - w / 2 : x;
       page.drawText(t, { x: x0 * PT, y: Y(y), size: co, font, color: mau });
@@ -107,9 +140,9 @@ const dauTrangCao = (de) => LE_TREN + (de ? 15 : 10) + 4;
 
 const LOGO_CAO = 12;     // mm
 
-function dauTrang(b, f, { tieuDe, de, hoTen, sao = 0 }) {
-  const x2 = RONG - LE_NGANG;
-  let x1 = LE_NGANG;
+function dauTrang(b, f, { tieuDe, de, hoTen, sao = 0, le }) {
+  const x2 = RONG - le.phai;
+  let x1 = le.trai;
   const day = LE_TREN + (de && hoTen ? 15 : 10);
   if (f.logo && hoTen) {
     // logo không được nhô lên trên lề trên khi tiêu đề chỉ có một dòng
@@ -133,65 +166,97 @@ function dauTrang(b, f, { tieuDe, de, hoTen, sao = 0 }) {
     b.chu("Lớp:", xLop - 15 - 1, y, { co: 9, phai: true });
     cham(xLop - 15, xLop, y);
   }
-  b.duong(LE_NGANG, day, x2, day, { day: 1 });
+  b.duong(le.trai, day, x2, day, { day: 1 });
   return day + 4;
 }
 
-function chanTrang(b, trai, so, tong) {
+function chanTrang(b, trai, so, tong, le) {
   const y = CAO - LE_DUOI + 4;
-  b.duong(LE_NGANG, y, RONG - LE_NGANG, y, { day: 0.4, mau: XAM(150) });
-  b.chu(trai, LE_NGANG, y + 3.8, { co: 8, mau: XAM(80) });
-  b.chu(`Trang ${so} / ${tong}`, RONG - LE_NGANG, y + 3.8, { co: 8, mau: XAM(80), phai: true });
+  b.duong(le.trai, y, RONG - le.phai, y, { day: 0.4, mau: XAM(150) });
+  b.chu(trai, le.trai, y + 3.8, { co: 8, mau: XAM(80) });
+  b.chu(`Trang ${so} / ${tong}`, RONG - le.phai, y + 3.8, { co: 8, mau: XAM(80), phai: true });
 }
 
-function trangPhieu(doc, f, quan, ws, ch, tieuDe) {
-  const { cot, hang, toaDo } = BO_CUC[ch.boCuc];
+// Bố cục theo hàng: cạnh sơ đồ cố định theo bố cục, mỗi hàng cao theo đề dài nhất trong hàng.
+// Hàng không vừa phần còn lại của trang thì sang trang mới (trang nào cũng có đầu trang).
+// Đề không bao giờ bị cắt im lặng: chỉ khi một hàng cao hơn cả trang trống mới cắt bớt, và báo lại.
+export function dauPhieu(ws, ch) {
+  const { cot, hang, toaDo, dongToiDa } = BO_CUC[ch.boCuc] || BO_CUC["2x3"];
   const de = deChung(ws.exercises);
+  const maxDong = Math.max(...ws.exercises.map((e) => soDongTraLoi(e, dongToiDa)));
+  // phần dưới sơ đồ theo mẫu: hai dòng đề riêng + các dòng trả lời
+  const them = 1.5 + (de === null ? 2 * DONG_DE : 0) + 5 + KHE_DONG_TRA_LOI * (maxDong - 1) + 1.5;
+  return { cot, hang, toaDo, dongToiDa, de, them };
+}
+const CO_DE = 8.5, DONG_DE = 3.3;
+
+function trangPhieu(doc, f, quan, ws, ch, tieuDe, canhBao) {
+  const { cot, hang, toaDo, dongToiDa, de, them } = dauPhieu(ws, ch);
   const riengDe = de === null;
-  const them = 9 + (riengDe ? 5 : 0);     // dòng đề riêng + dòng số bài dưới sơ đồ
-  const canh = canhBanCo(cot, hang, them, dauTrangCao(de));
-  const khe = cot > 1 ? (RONG - 2 * LE_NGANG - cot * canh) / (cot - 1) : 0;
-  const moiTrang = cot * hang;
+  const rongND = rongThan(ch.leGay);
+  const y0 = dauTrangCao(de);
+  const yMax = CAO - LE_DUOI - 2;
+  const canh = canhBanCo(cot, hang, them, y0, rongND);
+  const khe = cot > 1 ? (rongND - cot * canh) / (cot - 1) : 0;
   const trang = [];
-  for (let dau = 0; dau < ws.exercises.length; dau += moiTrang) {
+  let b, le, y = Infinity;
+  const trangMoi = () => {
+    le = leTrang(ch.leGay, doc.getPageCount());
     const page = doc.addPage([RONG * PT, CAO * PT]);
     trang.push(page);
-    const b = but(page, f);
-    const y0 = dauTrang(b, f, { tieuDe, de, hoTen: true, sao: ch.sao || 0 });
-    ws.exercises.slice(dau, dau + moiTrang).forEach((e, i) => {
-      const c = i % cot;
-      const x = LE_NGANG + c * (canh + khe);
-      const r = Math.floor(i / cot);
-      const y = y0 + r * (canh + them + KHE_HANG);
+    b = but(page, f);
+    y = dauTrang(b, f, { tieuDe, de, hoTen: true, sao: ch.sao || 0, le });
+  };
+  for (let dau = 0; dau < ws.exercises.length; dau += cot) {
+    const nhom = ws.exercises.slice(dau, dau + cot).map((e) => ({
+      e, dong: riengDe ? ngatDong(f.thuong, CO_DE, nhanIn(e.task), canh) : [], traLoi: soDongTraLoi(e, dongToiDa) }));
+    const caoO = (o) => canh + 1.5 + o.dong.length * DONG_DE + 5 + KHE_DONG_TRA_LOI * (o.traLoi - 1) + 1.5;
+    let cao = Math.max(...nhom.map(caoO));
+    if (y + cao > yMax) trangMoi();
+    if (y + cao > yMax) {
+      // một hàng cao hơn cả trang trống: cắt đề cho vừa và báo lại
+      for (const o of nhom) {
+        const du = caoO(o) - (yMax - y);
+        if (du <= 0) continue;
+        const giu = Math.max(1, o.dong.length - Math.ceil(du / DONG_DE));
+        o.dong = o.dong.slice(0, giu);
+        o.dong[giu - 1] += " …";
+        canhBao.push(`Bài ${o.e.id}: đề quá dài, bản in chỉ giữ ${giu} dòng. Hãy rút gọn đề hoặc dùng file Word.`);
+      }
+      cao = Math.max(...nhom.map(caoO));
+    }
+    nhom.forEach(({ e, dong, traLoi }, c) => {
+      const x = le.trai + c * (canh + khe);
       veBanCo(b, quan, e, x, y, canh, toaDo);
       let yc = y + canh + 1.5;
-      if (riengDe) {
-        const dong = ngatDong(f.thuong, 8.5, e.task, canh).slice(0, 2);
-        dong.forEach((d, j) => b.chu(d, x, yc + 3 + j * 3.3, { co: 8.5 }));
-        yc += 5;
-      }
+      dong.forEach((d, j) => b.chu(d, x, yc + 3 + j * DONG_DE, { co: CO_DE }));
+      yc += dong.length * DONG_DE;
       const yd = yc + 5;
       const wSo = b.chu(`${e.id}.`, x, yd, { co: 10, dam: true });
       const xt = x + wSo + 1.5 + 1.06;
       b.tron(xt, yd - 1.25, 3, { nen: e.side_to_move === "black" ? DEN : rgb(1, 1, 1) });
       b.duong(xt + 1.06 + 1.5, yd, x + canh, yd, { day: 0.7, cham: true });
+      for (let k = 1; k < traLoi; k++) b.duong(x, yd + k * KHE_DONG_TRA_LOI, x + canh, yd + k * KHE_DONG_TRA_LOI, { day: 0.7, cham: true });
     });
+    y += cao + KHE_HANG;
   }
   return trang;
 }
 
 function trangDapAn(doc, f, ws, ch, tieuDe) {
   const coDiem = ws.exercises.some((e) => e.points_set);
-  const x1 = LE_NGANG, x2 = RONG - LE_NGANG;
-  const cotBai = 12, cotBen = 16, cotDiem = coDiem ? 13 : 0, cotChuong = 55;
-  const cotDapAn = x2 - x1 - cotBai - cotBen - cotDiem - cotChuong;
-  const xs = { bai: x1 + 2, ben: x1 + cotBai + 2, dapAn: x1 + cotBai + cotBen + 2 };
-  xs.diem = xs.dapAn + cotDapAn;
-  xs.chuong = xs.diem + cotDiem;
+  const cotBai = 12, cotBen = 16, cotDiem = coDiem ? 13 : 0, cotChuong = 52;
+  const cotDapAn = rongThan(ch.leGay) - cotBai - cotBen - cotDiem - cotChuong;
   const yMax = CAO - LE_DUOI - 2;
   const trang = [];
-  let b, y;
+  let b, y, x1, x2, xs;
   const trangMoi = () => {
+    const le = leTrang(ch.leGay, doc.getPageCount());
+    x1 = le.trai;
+    x2 = RONG - le.phai;
+    xs = { bai: x1 + 2, ben: x1 + cotBai + 2, dapAn: x1 + cotBai + cotBen + 2 };
+    xs.diem = xs.dapAn + cotDapAn;
+    xs.chuong = xs.diem + cotDiem;
     const page = doc.addPage([RONG * PT, CAO * PT]);
     trang.push(page);
     b = but(page, f);
@@ -204,7 +269,7 @@ function trangDapAn(doc, f, ws, ch, tieuDe) {
     const yc = y + 2.2 + 3.3;
     for (const c of o) {
       const ds = Array.isArray(c.t) ? c.t : [c.t];
-      ds.forEach((d, j) => b.chu(d, c.x, yc + j * (c.co ? 3.4 : 4.2), { co: c.co || 10, dam: c.dam, mau: c.mau, phai: c.phai }));
+      ds.forEach((d, j) => b.chu(d, c.x, yc + j * (c.co ? 3.8 : 4.2), { co: c.co || 10, dam: c.dam, mau: c.mau, phai: c.phai }));
     }
     y += 2.2 * 2 + cao;
     b.duong(x1, y, x2, y, { day: 0.4, mau: XAM(170) });
@@ -213,18 +278,17 @@ function trangDapAn(doc, f, ws, ch, tieuDe) {
   for (const e of ws.exercises) {
     let nuoc = e.solution.length ? dongNuoc(e.solution, e.side_to_move) : "(chưa có đáp án)";
     if (e.alt_solutions.length) nuoc += "  (hoặc " + e.alt_solutions.join(", ") + ")";
-    let ghiChu = e.title;
-    if (e.wrong_tries.length) ghiChu += " · Nước sai hay gặp: " + e.wrong_tries.join(", ");
     const dNuoc = ngatDong(f.dam, 10, nuoc, cotDapAn - 4);
-    const dChuong = ngatDong(f.thuong, 8, ghiChu, cotChuong - 2);
-    const cao = Math.max(dNuoc.length * 4.2, dChuong.length * 3.4);
+    const dChuong = ngatDong(f.thuong, 9, nhanIn(e.title), cotChuong - 2);
+    if (e.wrong_tries.length) dChuong.push(...ngatDong(f.thuong, 9, "Nước sai hay gặp: " + e.wrong_tries.join(", "), cotChuong - 2));
+    const cao = Math.max(dNuoc.length * 4.2, dChuong.length * 3.8);
     if (y + cao + 4.4 > yMax) trangMoi();
     hangBang([
       { t: String(e.id), x: xs.bai },
       { t: TEN_BEN[e.side_to_move], x: xs.ben },
       { t: dNuoc, x: xs.dapAn, dam: true },
       ...(coDiem ? [{ t: String(e.points), x: xs.diem }] : []),
-      { t: dChuong, x: xs.chuong, co: 8, mau: XAM(90) },
+      { t: dChuong, x: xs.chuong, co: 9, mau: XAM(60) },
     ], 1, cao);
   }
   if (coDiem) {
@@ -236,9 +300,12 @@ function trangDapAn(doc, f, ws, ch, tieuDe) {
 }
 
 // tai: { thuong, dam: bytes TTF; quan: { wK: bytes PNG, … } }; fontkit: thư viện @pdf-lib/fontkit
-// ch: { tieuDe, capDo, bienSoan, boCuc, dapAn, sao: 0–3 ngôi sao cấp độ, logo: { loai: "png"|"jpeg", bytes } | null }
-export async function taoPdf(ws, ch, tai, fontkit) {
+// ch: { tieuDe, capDo, bienSoan, boCuc, dapAn, sao: 0–3 ngôi sao cấp độ, logo: { loai: "png"|"jpeg", bytes } | null,
+//       leGay: "trai" | "guong" | "khong" (mặc định "trai") }
+// Trả { bytes, soTrangBai, soTrangDapAn, canhBao: [chuỗi] }.
+export async function taoPdf(ws, chVao, tai, fontkit) {
   if (!ws.exercises.length) throw new Error("Chưa có bài nào để in.");
+  const ch = { ...chVao, leGay: KIEU_GAY.includes(chVao.leGay) ? chVao.leGay : "trai" };
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
   const f = {
@@ -248,13 +315,15 @@ export async function taoPdf(ws, ch, tai, fontkit) {
   if (ch.logo) f.logo = ch.logo.loai === "png" ? await doc.embedPng(ch.logo.bytes) : await doc.embedJpg(ch.logo.bytes);
   const quan = {};
   for (const [ten, png] of Object.entries(tai.quan)) quan[ten] = await doc.embedPng(png);
-  const tieuDe = chuan((ch.tieuDe || ws.title || "Phiếu bài tập") + (ch.capDo ? ` · Cấp độ ${ch.capDo}` : ""));
+  const tieuDe = nhanIn((ch.tieuDe || ws.title || "Phiếu bài tập") + (ch.capDo ? ` · Cấp độ ${ch.capDo}` : ""));
   doc.setTitle(tieuDe);
   doc.setCreator("ChessBision");
   doc.setLanguage("vi");
-  const trang = trangPhieu(doc, f, quan, ws, ch, tieuDe);
-  if (ch.dapAn) trang.push(...trangDapAn(doc, f, ws, ch, ch.tieuDe || ws.title || "Phiếu bài tập"));
-  const trai = ch.bienSoan ? `Biên soạn: ${ch.bienSoan}` : (ws.source.url || ws.source.file || "");
-  trang.forEach((p, i) => chanTrang(but(p, f), trai, i + 1, trang.length));
-  return await doc.save();
+  const canhBao = [];
+  const trang = trangPhieu(doc, f, quan, ws, ch, tieuDe, canhBao);
+  const soTrangBai = trang.length;
+  if (ch.dapAn) trang.push(...trangDapAn(doc, f, ws, ch, nhanIn(ch.tieuDe || ws.title || "Phiếu bài tập")));
+  const trai = nhanIn(ch.bienSoan ? `Biên soạn: ${ch.bienSoan}` : (ws.source.url || ws.source.file || ""));
+  trang.forEach((p, i) => chanTrang(but(p, f), trai, i + 1, trang.length, leTrang(ch.leGay, i)));
+  return { bytes: await doc.save(), soTrangBai, soTrangDapAn: trang.length - soTrangBai, canhBao };
 }

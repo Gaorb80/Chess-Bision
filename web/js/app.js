@@ -5,7 +5,7 @@ import { docLink, taiPgn, LoiLichess } from "./lichess.js";
 import { ve, TEN_QUAN } from "./so_do.js";
 import { dongNuoc } from "./ky_hieu.js";
 import { taoPdf } from "./pdf.js";
-import { TEN_BEN } from "./tach_bai.js";
+import { TEN_BEN, KIEU_DE, deIn } from "./tach_bai.js";
 import { tatCaMau, luuMau, xoaMau, logoThanhDataUrl, dataUrlThanhLogo, capDoChung } from "./mau_phieu.js";
 
 const $ = (id) => document.getElementById(id);
@@ -49,7 +49,8 @@ async function moPgn(text, nguon) {
     return;
   }
   ws = kq;
-  chon = ws.exercises.map(() => true);
+  // bài chưa có nước đáp án thì mặc định không in: giáo viên không chấm được từ trang đáp án
+  chon = ws.exercises.map((e) => e.solution.length > 0);
   saoTay = false;
   $("cong-cu-cap-do").hidden = !ws.exercises.some((e) => e.level);
   $("o-loc-cap-do").value = "";
@@ -107,6 +108,7 @@ const TEN_THONG_BAO = {
   "duplicate": "Bỏ qua (trùng thế cờ)",
   "illegal": "Bỏ qua (nước đi sai luật)",
   "multi-solution": "Nhiều đáp án",
+  "merged-answer": "Đã ghép đáp án",
   "no-moves": "Chưa có đáp án",
   "qua-nhieu": "Quá nhiều bài",
 };
@@ -114,8 +116,15 @@ const TEN_THONG_BAO = {
 async function veXemTruoc() {
   const quan = await taiQuanSvg();
   $("tom-tat").textContent = `${ws.exercises.length} bài sẽ được in. Bỏ dấu chọn ở bài nào không muốn in.`;
-  $("thong-bao").innerHTML = ws.notices.map((n) =>
-    `<li><b>${TEN_THONG_BAO[n.code] || "Lưu ý"}:</b> ${thoat(n.chapter)}. ${thoat(n.message)}</li>`).join("");
+  // lưu ý cần giáo viên xem (chưa có đáp án, ghép đáp án, nhiều đáp án, lỗi) hiện trước;
+  // các chương bị bỏ qua (trống, ván đầy đủ, trùng thế) gom lại trong một mục thu gọn
+  const BO_QUA = ["empty-chapter", "full-game", "duplicate"];
+  const dong = (n) => `<li><b>${TEN_THONG_BAO[n.code] || "Lưu ý"}:</b> ${thoat(n.chapter)}. ${thoat(n.message)}</li>`;
+  const quanTrong = ws.notices.filter((n) => !BO_QUA.includes(n.code));
+  const boQua = ws.notices.filter((n) => BO_QUA.includes(n.code));
+  $("thong-bao").innerHTML = quanTrong.map(dong).join("") + (boQua.length
+    ? `<li class="bo-qua"><details><summary>${boQua.length} chương không thành bài (chương trống, ván đầy đủ hoặc trùng thế cờ)</summary><ul>${boQua.map(dong).join("")}</ul></details></li>`
+    : "");
   $("luoi").innerHTML = ws.exercises.map((e, i) => {
     const dapAn = e.solution.length ? dongNuoc(e.solution, e.side_to_move) : "(chưa có đáp án)";
     const hoac = e.alt_solutions.length ? ` (hoặc ${e.alt_solutions.join(", ")})` : "";
@@ -125,7 +134,9 @@ async function veXemTruoc() {
       <label class="tren"><input type="checkbox" ${chon[i] ? "checked" : ""} data-i="${i}" aria-label="In bài ${i + 1}">
         <span class="so-bai">${i + 1}.</span><span class="ben ${e.side_to_move}" title="${TEN_BEN[e.side_to_move]} đi"></span>
         <span class="ten" title="${thoat(e.title)}">${thoat(e.title)}</span>${sao}</label>
+      ${e.solution.length ? "" : `<p class="thieu-dap-an">Chưa có đáp án: đã bỏ chọn, tích lại nếu vẫn muốn in.</p>`}
       ${ve(e.fen, { lat: e.side_to_move === "black", toaDo: true, quan })}
+      <label class="in-de"><input type="checkbox" class="o-in-de" data-i="${i}" ${e.inDe === false ? "" : "checked"}> In đề / bình luận của bài này</label>
       <p class="de">${e.task.startsWith(TEN_BEN[e.side_to_move]) ? "" : TEN_BEN[e.side_to_move] + " đi. "}${thoat(e.task)}</p>
       ${chuDe}<p class="dap-an">Đáp án: ${thoat(dapAn + hoac)}</p>
     </div>`;
@@ -141,13 +152,30 @@ function danhSo() {
     el.querySelector(".so-bai").textContent = chon[i] ? `${++so}.` : "–";
   });
   $("tom-tat").textContent = `${so} / ${ws.exercises.length} bài sẽ được in. Bỏ dấu chọn ở bài nào không muốn in.`;
+  tomTatIn();
   if (!saoTay) $("o-sao").value = String(capDoChung(ws.exercises.filter((_, i) => chon[i])));
+}
+
+// Dòng nhắc cạnh nút tải: bài chưa có đáp án vẫn được chọn, đề dài nên in ít thế mỗi trang
+const DE_DAI = 300;   // ký tự; dài hơn thì ở 12 thế/trang một ô sẽ cao gần nửa trang
+function tomTatIn() {
+  if (!ws) return;
+  const bai = ws.exercises.filter((_, i) => chon[i]);
+  const thieu = bai.filter((e) => !e.solution.length).length;
+  const kieuDe = $("o-kieu-de").value;
+  const deDai = bai.filter((e) => deIn(e, kieuDe).length > DE_DAI).length;
+  const boCuc = document.querySelector("input[name=bo-cuc]:checked").value;
+  const nhac = [];
+  if (thieu) nhac.push(`${thieu} bài đang chọn chưa có đáp án: trang đáp án sẽ ghi “(chưa có đáp án)”.`);
+  if (deDai && boCuc !== "2x2") nhac.push(`${deDai} bài có đề dài: phiếu sẽ tự in ít thế hơn mỗi trang cho đủ chữ; chọn “4 thế mỗi trang” để sơ đồ lớn và nhiều chỗ ghi hơn.`);
+  $("nhac-in").innerHTML = nhac.map((t) => `<p>${thoat(t)}</p>`).join("");
+  $("nhac-in").hidden = !nhac.length;
 }
 
 // Chọn đúng các bài một cấp độ ("0": bài chưa ghi cấp độ)
 function locCapDo(v) {
   chon = ws.exercises.map((e) => v === "" || (e.level ?? 0) === +v);
-  document.querySelectorAll("#luoi input[type=checkbox]").forEach((c) => (c.checked = chon[+c.dataset.i]));
+  document.querySelectorAll("#luoi .tren input[type=checkbox]").forEach((c) => (c.checked = chon[+c.dataset.i]));
   danhSo();
 }
 
@@ -198,6 +226,8 @@ function tuyChon() {
     capDo: $("o-cap-do").value.trim(),
     bienSoan: $("o-bien-soan").value.trim(),
     boCuc: document.querySelector("input[name=bo-cuc]:checked").value,
+    leGay: $("o-le-gay").value,
+    kieuDe: $("o-kieu-de").value,
     dapAn: $("o-dap-an").checked,
     sao: +$("o-sao").value,
     logo: logo && { loai: logo.loai, bytes: logo.bytes },
@@ -209,15 +239,15 @@ const tenFile = (s) => (s || "phieu").normalize("NFD").replace(/[̀-ͯ]/g, "").r
 
 function baiDuocChon(ch) {
   luuTuyChon(ch);
-  const bai = ws.exercises.filter((_, i) => chon[i]).map((e, i) => ({ ...e, id: i + 1 }));
+  const bai = ws.exercises.filter((_, i) => chon[i]).map((e, i) => ({ ...e, id: i + 1, task: deIn(e, ch.kieuDe) }));
   if (!bai.length) throw new Error("Chưa chọn bài nào để in.");
   return { ...ws, exercises: bai };
 }
 
 async function taoFile() {
   const ch = tuyChon();
-  const bytes = await taoPdf(baiDuocChon(ch), ch, await taiTaiNguyen(), window.fontkit);
-  return { blob: new Blob([bytes], { type: "application/pdf" }), ten: `${tenFile(ch.tieuDe || ws.title)}.pdf` };
+  const kq = await taoPdf(baiDuocChon(ch), ch, await taiTaiNguyen(), window.fontkit);
+  return { ...kq, blob: new Blob([kq.bytes], { type: "application/pdf" }), ten: `${tenFile(ch.tieuDe || ws.title)}.pdf` };
 }
 
 function taiXuong(blob, ten) {
@@ -260,7 +290,7 @@ async function lamPdf(xem) {
   nut.forEach((n) => (n.disabled = true));
   bao(tt, "dang", "Đang tạo PDF…");
   try {
-    const { blob, ten } = await taoFile();
+    const { blob, ten, soTrangBai, soTrangDapAn, canhBao } = await taoFile();
     if (tab) {
       const url = URL.createObjectURL(blob);
       tab.location.href = url;
@@ -268,7 +298,9 @@ async function lamPdf(xem) {
     } else {
       taiXuong(blob, ten);
     }
-    bao(tt, "tot", xem ? "Đã mở PDF ở thẻ mới. Bấm biểu tượng máy in hoặc Ctrl+P để in, nhớ chọn khổ giấy A4." : `Đã tải ${thoat(ten)}.`);
+    const soTrang = `${soTrangBai} trang bài tập` + (soTrangDapAn ? ` + ${soTrangDapAn} trang đáp án` : "");
+    bao(tt, canhBao.length ? "loi" : "tot", (xem ? `Đã mở PDF (${soTrang}) ở thẻ mới. Bấm biểu tượng máy in hoặc Ctrl+P để in, nhớ chọn khổ giấy A4.`
+      : `Đã tải ${thoat(ten)}: ${soTrang}.`) + canhBao.map((c) => `<br>${thoat(c)}`).join(""));
   } catch (e) {
     if (tab) tab.close();
     bao(tt, "loi", `Không tạo được PDF: ${thoat(e.message)}`);
@@ -284,7 +316,7 @@ function docLuu() {
 }
 function luuTuyChon(ch) {
   try {
-    localStorage.setItem(LUU, JSON.stringify({ bienSoan: ch.bienSoan, boCuc: ch.boCuc, dapAn: ch.dapAn, mau: $("o-mau").value, logo: logo?.url || null }));
+    localStorage.setItem(LUU, JSON.stringify({ bienSoan: ch.bienSoan, boCuc: ch.boCuc, leGay: ch.leGay, kieuDe: ch.kieuDe, dapAn: ch.dapAn, mau: $("o-mau").value, logo: logo?.url || null }));
   } catch { /* không lưu được thì thôi */ }
 }
 
@@ -312,6 +344,7 @@ function apMau(id) {
   const r = document.querySelector(`input[name=bo-cuc][value="${m.boCuc}"]`);
   if (r) r.checked = true;
   $("o-dap-an").checked = m.dapAn;
+  tomTatIn();
   if (!m.coSan) { $("o-bien-soan").value = m.bienSoan; datLogo(m.logo); }
   $("nut-xoa-mau").hidden = m.coSan;
 }
@@ -351,9 +384,10 @@ $("nut-mau").addEventListener("click", async () => {
   moPgn(text, { file: "Bài mẫu" });
 });
 $("luoi").addEventListener("change", (ev) => {
-  if (ev.target.matches("input[type=checkbox]")) { chon[+ev.target.dataset.i] = ev.target.checked; danhSo(); }
+  if (ev.target.matches(".o-in-de")) { ws.exercises[+ev.target.dataset.i].inDe = ev.target.checked; tomTatIn(); }
+  else if (ev.target.matches("input[type=checkbox]")) { chon[+ev.target.dataset.i] = ev.target.checked; danhSo(); }
 });
-const datHet = (v) => { chon = chon.map(() => v); document.querySelectorAll("#luoi input[type=checkbox]").forEach((c) => (c.checked = v)); danhSo(); };
+const datHet = (v) => { chon = chon.map(() => v); document.querySelectorAll("#luoi .tren input[type=checkbox]").forEach((c) => (c.checked = v)); danhSo(); };
 $("nut-chon-het").addEventListener("click", () => datHet(true));
 $("nut-bo-het").addEventListener("click", () => datHet(false));
 $("o-hien-dap-an").addEventListener("change", (ev) => document.body.classList.toggle("hien-dap-an", ev.target.checked));
@@ -380,6 +414,8 @@ $("nut-xoa-mau").addEventListener("click", () => {
 $("o-logo").addEventListener("change", (ev) => { if (ev.target.files[0]) chonLogo(ev.target.files[0]); ev.target.value = ""; });
 $("nut-bo-logo").addEventListener("click", () => datLogo(null));
 $("nut-word").addEventListener("click", () => lamWord());
+document.querySelectorAll("input[name=bo-cuc]").forEach((r) => r.addEventListener("change", tomTatIn));
+$("o-kieu-de").addEventListener("change", tomTatIn);
 $("nut-tai").addEventListener("click", () => lamPdf(false));
 $("nut-xem").addEventListener("click", () => lamPdf(true));
 
@@ -401,6 +437,8 @@ addEventListener("drop", (ev) => {
   datLogo(typeof luu.logo === "string" ? luu.logo : null);
   if (luu.boCuc) { const r = document.querySelector(`input[name=bo-cuc][value="${luu.boCuc}"]`); if (r) r.checked = true; }
   if (luu.dapAn === false) $("o-dap-an").checked = false;
+  if (KIEU_DE.includes(luu.kieuDe)) $("o-kieu-de").value = luu.kieuDe;
+  if (["trai", "guong", "khong"].includes(luu.leGay)) $("o-le-gay").value = luu.leGay;
   const link = new URLSearchParams(location.search).get("link");
   if (link) { $("o-link").value = link; layTuLink(link); }
 }

@@ -47,7 +47,7 @@ function ghiKhung() {
 }
 
 for (const boCuc of Object.keys(BO_CUC)) {
-  for (const ten of ["chieu-het-1-nuoc.pgn", "cap-do-chu-de.pgn"]) {
+  for (const ten of ["chieu-het-1-nuoc.pgn", "cap-do-chu-de.pgn", "de-dai-dap-an-rieng.pgn"]) {
     test(`PDF web ${boCuc}, ${ten}: mọi nét cách mép giấy ≥ ${VUNG_AN_TOAN} mm`, async () => {
       const g = ghiKhung();
       try { await taoPdf(bai(ten), { ...ch, boCuc }, tai, fontkit); } finally { g.tra(); }
