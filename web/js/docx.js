@@ -3,12 +3,10 @@
 // Sơ đồ là ảnh PNG; chữ (tiêu đề, đề bài, đáp án) sửa được trong Word / Google Docs.
 // Phiếu học sinh không bao giờ chứa đáp án; đáp án chỉ nằm ở các trang sau cùng.
 
-import { BO_CUC } from "./pdf.js";
+import { BO_CUC, RONG, CAO, VUNG_AN_TOAN, LE_NGANG, LE_TREN, LE_DUOI } from "./pdf.js";
 import { deChung, TEN_BEN } from "./tach_bai.js";
 import { dongNuoc } from "./ky_hieu.js";
 
-const RONG = 210, CAO = 297;
-const LE_NGANG = 15, LE_TREN = 13, LE_DUOI = 16;
 const KHE_COT = 12, KHE_HANG = 6;
 const DAU_TRANG = 22;      // chỗ cho tiêu đề + họ tên (mm)
 const PX = 96 / 25.4;      // ảnh trong docx tính bằng px ở 96 dpi
@@ -153,7 +151,7 @@ export async function taoDocx(ws, ch, anh, D) {
     styles: { default: { document: { run: { font: PHONG, size: 20 } } } },
     sections: [{
       properties: { page: { size: { width: mm(RONG), height: mm(CAO) },
-        margin: { top: mm(LE_TREN), bottom: mm(LE_DUOI), left: mm(LE_NGANG), right: mm(LE_NGANG), footer: mm(6) } } },
+        margin: { top: mm(LE_TREN), bottom: mm(LE_DUOI), left: mm(LE_NGANG), right: mm(LE_NGANG), footer: mm(VUNG_AN_TOAN + 1) } } },
       footers: { default: chan },
       children: than,
     }],
