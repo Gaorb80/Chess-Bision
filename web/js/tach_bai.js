@@ -159,6 +159,15 @@ export function docCapDo(giaTri) {
 // Tag [Theme "Chiếu hết, Đòn phối hợp"] → danh sách chủ đề (tách bằng dấu phẩy hoặc chấm phẩy).
 export const docChuDe = (giaTri) => giaTri.split(/[,;]/).map((t) => t.trim()).filter(Boolean);
 
+// Kiểu in đề / bình luận: "tat-ca" (mặc định), "ngan" (chỉ đề tự viết như "Chiếu hết sau 1 nước",
+// bỏ bình luận của study), "khong" (chỉ in thế cờ). Bài có inDe === false luôn không in đề.
+export const KIEU_DE = ["tat-ca", "ngan", "khong"];
+export function deIn(e, kieu) {
+  if (e.inDe === false || kieu === "khong") return "";
+  if (kieu === "ngan") return e.task_auto ? e.task : "";
+  return e.task;
+}
+
 // Nếu mọi bài cùng một đề thì in một lần ở đầu phiếu.
 export function deChung(exercises) {
   const cac = new Set(exercises.map((e) => e.task));

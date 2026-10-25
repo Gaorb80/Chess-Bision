@@ -10,5 +10,6 @@ dap_an = "cung"      # cung: trang cuối phieu.pdf | rieng: dap-an.pdf | khong
 diem = false         # in ô điểm từng bài trên phiếu học sinh
 huong = "ben-di"     # ben-di: bên phải đi ở dưới | trang: luôn Trắng dưới
 bo_trung = true      # bỏ bài trùng thế cờ
+de_bai = "tat-ca"    # tat-ca: đề + bình luận | ngan: chỉ đề tự viết | khong: chỉ in thế cờ
 le_gay = "trai"      # trai: chừa 25 mm bên trái | guong: in hai mặt, 25 mm phía gáy | khong: 18 mm hai bên
 bai_chua_dap_an = false  # in cả bài chưa có nước đáp án

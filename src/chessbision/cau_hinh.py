@@ -16,6 +16,7 @@ BO_CUC = {
     "3x4": (3, 4, False, 1),
 }
 LE_GAY = ("trai", "guong", "khong")
+DE_BAI = ("tat-ca", "ngan", "khong")
 KY_HIEU = ("vi", "quoc-te")
 DAP_AN = ("rieng", "cung", "khong")
 HUONG = ("ben-di", "trang")
@@ -32,6 +33,7 @@ class CauHinh:
     diem: bool = False         # in ô điểm trên phiếu học sinh
     huong: str = "ben-di"      # ben-di: bên phải đi ở dưới | trang: luôn Trắng dưới
     bo_trung: bool = True      # bỏ bài trùng thế cờ
+    de_bai: str = "tat-ca"     # tat-ca: đề + bình luận | ngan: chỉ đề tự viết | khong: chỉ in thế cờ
     le_gay: str = "trai"       # trai: chừa 25 mm bên trái (ghim góc) | guong: in hai mặt | khong: 18 mm hai bên
     bai_chua_dap_an: bool = False  # in cả bài chưa có nước đáp án (mặc định bỏ, vì không chấm được)
 
@@ -42,6 +44,7 @@ class CauHinh:
             ("dap_an", self.dap_an, DAP_AN),
             ("huong", self.huong, HUONG),
             ("le_gay", self.le_gay, LE_GAY),
+            ("de_bai", self.de_bai, DE_BAI),
         ):
             if gia_tri not in cho_phep:
                 raise ValueError(f"{ten} = {gia_tri!r} không hợp lệ, chọn một trong: {', '.join(cho_phep)}")

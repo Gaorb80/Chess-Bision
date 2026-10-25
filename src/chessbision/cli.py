@@ -43,6 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--diem", type=_bat_tat, help="in ô điểm trên phiếu: co / khong")
     p.add_argument("--huong", choices=cau_hinh.HUONG)
     p.add_argument("--bo-trung", type=_bat_tat, help="bỏ bài trùng thế cờ: co / khong")
+    p.add_argument("--de-bai", choices=cau_hinh.DE_BAI, help="tat-ca: đề + bình luận | ngan: chỉ đề tự viết | khong: chỉ in thế cờ")
     p.add_argument("--le-gay", choices=cau_hinh.LE_GAY, help="lề ghim/gáy 25 mm: trai (in một mặt) / guong (in hai mặt) / khong")
     p.add_argument("--bai-chua-dap-an", type=_bat_tat, help="in cả bài chưa có nước đáp án: co / khong (mặc định khong)")
     p.add_argument("--luu-json", help="lưu bài đã tách ra file JSON")
@@ -51,7 +52,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         ch = cau_hinh.doc(Path(a.cau_hinh), tieu_de=a.tieu_de, cap_do=a.cap_do, bien_soan=a.bien_soan,
                           ky_hieu=a.ky_hieu, bo_cuc=a.bo_cuc, dap_an=a.dap_an, diem=a.diem,
-                          huong=a.huong, bo_trung=a.bo_trung, le_gay=a.le_gay, bai_chua_dap_an=a.bai_chua_dap_an)
+                          huong=a.huong, bo_trung=a.bo_trung, le_gay=a.le_gay, de_bai=a.de_bai, bai_chua_dap_an=a.bai_chua_dap_an)
     except (ValueError, TypeError) as e:
         raise SystemExit(f"Cấu hình sai: {e}")
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import re
 import tempfile
+from dataclasses import replace
 from importlib import resources
 from pathlib import Path
 
@@ -14,7 +15,7 @@ import typst
 from ..cau_hinh import BO_CUC, CauHinh
 from ..ky_hieu import dong_nuoc, san
 from ..mo_hinh import Worksheet
-from ..tach_bai import de_chung, ten_ben
+from ..tach_bai import de_chung, de_in, ten_ben
 from . import so_do
 
 # khổ A4, lề (mm). Mọi nét, kể cả chân trang, cách mép giấy ít nhất VUNG_AN_TOAN:
@@ -158,6 +159,7 @@ def xuat(ws: Worksheet, ch: CauHinh, thu_muc_ra: Path) -> list[Path]:
         raise SystemExit("Không có bài nào để in (xem các thông báo ở trên).")
     thu_muc_ra.mkdir(parents=True, exist_ok=True)
     tieu_de = ch.tieu_de or ws.title or "Phiếu bài tập"
+    ws = replace(ws, exercises=[replace(e, task=de_in(e, ch.de_bai)) for e in ws.exercises])
     nguon = ws.source.get("url") or Path(ws.source.get("path", "")).name
     ra = []
     with tempfile.TemporaryDirectory() as tmp:

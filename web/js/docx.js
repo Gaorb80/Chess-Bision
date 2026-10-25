@@ -90,7 +90,7 @@ export async function taoDocx(ws, chVao, anh, D) {
       const png = await anh.banCo(e, toaDo);
       const noi = [new D.Paragraph({ children: [new D.ImageRun({ type: "png", data: png,
         transformation: { width: Math.round(canh * PX), height: Math.round(canh * PX) } })] })];
-      if (riengDe) noi.push(new D.Paragraph({ children: [chu(nhanIn(e.task), { size: 17 })] }));
+      if (riengDe && e.task) noi.push(new D.Paragraph({ children: [chu(nhanIn(e.task), { size: 17 })] }));
       const traLoi = soDongTraLoi(e, dongToiDa);
       noi.push(new D.Paragraph({ spacing: { before: 60, after: traLoi > 1 ? 0 : mm(KHE_HANG) }, children: [
         chu(`${e.id}. `, { bold: true, size: 20 }),

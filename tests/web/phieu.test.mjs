@@ -117,3 +117,27 @@ test("emoji trong tên chương bị bỏ khi in, chữ tiếng Việt giữ ngu
   const chu = gop(kq.trang.flatMap((t) => t.chu));
   assert.ok(!/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u.test(chu));
 });
+
+test("tùy chọn đề: chỉ in thế cờ thì không có chữ đề; chỉ đề tự viết thì bỏ bình luận; tắt riêng từng bài", async () => {
+  const { deIn } = await import("../../web/js/tach_bai.js");
+  const ws = mau("de-dai-dap-an-rieng.pgn");
+  const dai = ws.exercises[0], tuDong = ws.exercises[0].task_auto;
+  assert.ok(!tuDong && dai.task.length > 800);
+  assert.equal(deIn(dai, "tat-ca"), dai.task);
+  assert.equal(deIn(dai, "ngan"), "");
+  assert.equal(deIn(dai, "khong"), "");
+  assert.equal(deIn({ ...dai, inDe: false }, "tat-ca"), "");
+  const auto = mau("chieu-het-1-nuoc.pgn").exercises[0];
+  assert.ok(auto.task_auto && deIn(auto, "ngan") === auto.task);
+  // PDF: không còn chữ đề, bài vẫn đủ
+  const khong = { ...ws, exercises: ws.exercises.map((e, i) => ({ ...e, id: i + 1, task: deIn(e, "khong") })) };
+  const kq = await ve(khong, { boCuc: "3x4" });
+  const chu = gop(kq.trang.slice(0, kq.soTrangBai).flatMap((t) => t.chu));
+  assert.ok(!chu.includes("Thế cờ này lấy từ") && !chu.includes("Trắng đi."));
+  assert.equal(kq.soTrangBai, 1);
+  assert.deepEqual(kq.canhBao, []);
+  // một bài tắt đề, bài khác giữ
+  const mot = { ...ws, exercises: ws.exercises.map((e, i) => ({ ...e, id: i + 1, task: deIn(i ? e : { ...e, inDe: false }, "tat-ca") })) };
+  const chu2 = gop((await ve(mot, { boCuc: "2x3" })).trang.flatMap((t) => t.chu));
+  assert.ok(!chu2.includes("Thế cờ này lấy từ") && chu2.includes("Trắng đi."));
+});

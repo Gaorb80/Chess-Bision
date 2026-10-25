@@ -56,6 +56,7 @@ Không cần cài LaTeX hay Typst riêng: gói `typst` trên PyPI có sẵn trì
 | `--diem` | `khong` | `co`: ô điểm từng bài trên phiếu |
 | `--huong` | `ben-di` (bên phải đi ở dưới) | `trang` |
 | `--bo-trung` | `co` | `khong` |
+| `--de-bai` | `tat-ca` (đề + bình luận của study) | `ngan` (chỉ đề tự viết như “Chiếu hết sau 1 nước”), `khong` (chỉ in thế cờ) |
 | `--le-gay` | `trai`: chừa 25 mm bên trái (in một mặt, ghim góc trái) | `guong`: 25 mm phía gáy, đổi bên theo trang (in hai mặt); `khong`: 18 mm hai bên |
 | `--bai-chua-dap-an` | `khong`: bỏ bài chưa có nước đáp án | `co`: vẫn in, đáp án ghi “(chưa có đáp án)” |
 | `--tieu-de`, `--cap-do`, `--bien-soan` | lấy từ study | |

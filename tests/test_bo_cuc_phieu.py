@@ -78,3 +78,13 @@ def test_cli_bo_bai_chua_dap_an(tmp_path, capsys):
     cli.main(["in", str(MAU / "de-dai-dap-an-rieng.pgn"), "-o", str(tmp_path / "du"), "--cau-hinh", str(tmp_path / "khong.toml"),
               "--bai-chua-dap-an", "co"])
     assert "(chưa có đáp án)" in PdfReader(tmp_path / "du" / "phieu.pdf").pages[-1].extract_text()
+
+
+@pytest.mark.parametrize("kieu, con_binh_luan, con_de_tu_viet", [("tat-ca", True, True), ("ngan", False, True), ("khong", False, False)])
+def test_tuy_chon_de_bai(tmp_path, kieu, con_binh_luan, con_de_tu_viet):
+    ws = tach((MAU / "chieu-het-1-nuoc.pgn").read_text(encoding="utf-8"))
+    ws.exercises[0].task, ws.exercises[0].task_auto = "Bình luận dài của study cho bài một", False
+    ra = pdf.xuat(ws, cau_hinh.doc(None, de_bai=kieu), tmp_path)
+    bai = _gop(" ".join(p.extract_text() for p in PdfReader(ra[0]).pages if "Họ tên" in p.extract_text()))
+    assert ("Bình luận dài của study cho bài một" in bai) is con_binh_luan
+    assert ("Chiếu hết sau 1 nước" in bai) is con_de_tu_viet

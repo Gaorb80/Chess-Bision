@@ -106,6 +106,7 @@ select:focus-visible { outline: 3px solid #8cc3a6; outline-offset: 1px; }
 .nhac-in { margin-top: 14px; background: var(--nen-canh-bao); color: var(--canh-bao); border-radius: 8px; padding: 8px 12px; font-size: 14px; }
 .nhac-in p { margin: 0; }
 .nhac-in p + p { margin-top: 4px; }
+.the-bai .in-de { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--mo); margin-top: 8px; }
 .the-bai .chu-de { font-size: 12.5px; color: var(--mo); margin: 4px 0 0; }
 .hanh-dong { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
 

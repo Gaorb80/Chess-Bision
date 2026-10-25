@@ -165,5 +165,13 @@ def de_chung(ws: Worksheet) -> str | None:
     return cac_de.pop() if len(cac_de) == 1 else None
 
 
+def de_in(e: Exercise, kieu: str) -> str:
+    """Đề in trên phiếu: tat-ca = đề đầy đủ, ngan = chỉ đề tự viết, khong = để trống (chỉ in thế cờ).
+    Sửa tay trong file JSON: đặt task = "" để một bài không in đề."""
+    if kieu == "khong":
+        return ""
+    return e.task if kieu == "tat-ca" or e.task_auto else ""
+
+
 def ten_ben(ben: str) -> str:
     return _TEN_BEN[ben]

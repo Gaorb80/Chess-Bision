@@ -5,7 +5,7 @@ import { docLink, taiPgn, LoiLichess } from "./lichess.js";
 import { ve, TEN_QUAN } from "./so_do.js";
 import { dongNuoc } from "./ky_hieu.js";
 import { taoPdf } from "./pdf.js";
-import { TEN_BEN } from "./tach_bai.js";
+import { TEN_BEN, KIEU_DE, deIn } from "./tach_bai.js";
 import { tatCaMau, luuMau, xoaMau, logoThanhDataUrl, dataUrlThanhLogo, capDoChung } from "./mau_phieu.js";
 
 const $ = (id) => document.getElementById(id);
@@ -136,6 +136,7 @@ async function veXemTruoc() {
         <span class="ten" title="${thoat(e.title)}">${thoat(e.title)}</span>${sao}</label>
       ${e.solution.length ? "" : `<p class="thieu-dap-an">Chưa có đáp án: đã bỏ chọn, tích lại nếu vẫn muốn in.</p>`}
       ${ve(e.fen, { lat: e.side_to_move === "black", toaDo: true, quan })}
+      <label class="in-de"><input type="checkbox" class="o-in-de" data-i="${i}" ${e.inDe === false ? "" : "checked"}> In đề / bình luận của bài này</label>
       <p class="de">${e.task.startsWith(TEN_BEN[e.side_to_move]) ? "" : TEN_BEN[e.side_to_move] + " đi. "}${thoat(e.task)}</p>
       ${chuDe}<p class="dap-an">Đáp án: ${thoat(dapAn + hoac)}</p>
     </div>`;
@@ -161,7 +162,8 @@ function tomTatIn() {
   if (!ws) return;
   const bai = ws.exercises.filter((_, i) => chon[i]);
   const thieu = bai.filter((e) => !e.solution.length).length;
-  const deDai = bai.filter((e) => e.task.length > DE_DAI).length;
+  const kieuDe = $("o-kieu-de").value;
+  const deDai = bai.filter((e) => deIn(e, kieuDe).length > DE_DAI).length;
   const boCuc = document.querySelector("input[name=bo-cuc]:checked").value;
   const nhac = [];
   if (thieu) nhac.push(`${thieu} bài đang chọn chưa có đáp án: trang đáp án sẽ ghi “(chưa có đáp án)”.`);
@@ -173,7 +175,7 @@ function tomTatIn() {
 // Chọn đúng các bài một cấp độ ("0": bài chưa ghi cấp độ)
 function locCapDo(v) {
   chon = ws.exercises.map((e) => v === "" || (e.level ?? 0) === +v);
-  document.querySelectorAll("#luoi input[type=checkbox]").forEach((c) => (c.checked = chon[+c.dataset.i]));
+  document.querySelectorAll("#luoi .tren input[type=checkbox]").forEach((c) => (c.checked = chon[+c.dataset.i]));
   danhSo();
 }
 
@@ -225,6 +227,7 @@ function tuyChon() {
     bienSoan: $("o-bien-soan").value.trim(),
     boCuc: document.querySelector("input[name=bo-cuc]:checked").value,
     leGay: $("o-le-gay").value,
+    kieuDe: $("o-kieu-de").value,
     dapAn: $("o-dap-an").checked,
     sao: +$("o-sao").value,
     logo: logo && { loai: logo.loai, bytes: logo.bytes },
@@ -236,7 +239,7 @@ const tenFile = (s) => (s || "phieu").normalize("NFD").replace(/[̀-ͯ]/g, "").r
 
 function baiDuocChon(ch) {
   luuTuyChon(ch);
-  const bai = ws.exercises.filter((_, i) => chon[i]).map((e, i) => ({ ...e, id: i + 1 }));
+  const bai = ws.exercises.filter((_, i) => chon[i]).map((e, i) => ({ ...e, id: i + 1, task: deIn(e, ch.kieuDe) }));
   if (!bai.length) throw new Error("Chưa chọn bài nào để in.");
   return { ...ws, exercises: bai };
 }
@@ -313,7 +316,7 @@ function docLuu() {
 }
 function luuTuyChon(ch) {
   try {
-    localStorage.setItem(LUU, JSON.stringify({ bienSoan: ch.bienSoan, boCuc: ch.boCuc, leGay: ch.leGay, dapAn: ch.dapAn, mau: $("o-mau").value, logo: logo?.url || null }));
+    localStorage.setItem(LUU, JSON.stringify({ bienSoan: ch.bienSoan, boCuc: ch.boCuc, leGay: ch.leGay, kieuDe: ch.kieuDe, dapAn: ch.dapAn, mau: $("o-mau").value, logo: logo?.url || null }));
   } catch { /* không lưu được thì thôi */ }
 }
 
@@ -381,9 +384,10 @@ $("nut-mau").addEventListener("click", async () => {
   moPgn(text, { file: "Bài mẫu" });
 });
 $("luoi").addEventListener("change", (ev) => {
-  if (ev.target.matches("input[type=checkbox]")) { chon[+ev.target.dataset.i] = ev.target.checked; danhSo(); }
+  if (ev.target.matches(".o-in-de")) { ws.exercises[+ev.target.dataset.i].inDe = ev.target.checked; tomTatIn(); }
+  else if (ev.target.matches("input[type=checkbox]")) { chon[+ev.target.dataset.i] = ev.target.checked; danhSo(); }
 });
-const datHet = (v) => { chon = chon.map(() => v); document.querySelectorAll("#luoi input[type=checkbox]").forEach((c) => (c.checked = v)); danhSo(); };
+const datHet = (v) => { chon = chon.map(() => v); document.querySelectorAll("#luoi .tren input[type=checkbox]").forEach((c) => (c.checked = v)); danhSo(); };
 $("nut-chon-het").addEventListener("click", () => datHet(true));
 $("nut-bo-het").addEventListener("click", () => datHet(false));
 $("o-hien-dap-an").addEventListener("change", (ev) => document.body.classList.toggle("hien-dap-an", ev.target.checked));
@@ -411,6 +415,7 @@ $("o-logo").addEventListener("change", (ev) => { if (ev.target.files[0]) chonLog
 $("nut-bo-logo").addEventListener("click", () => datLogo(null));
 $("nut-word").addEventListener("click", () => lamWord());
 document.querySelectorAll("input[name=bo-cuc]").forEach((r) => r.addEventListener("change", tomTatIn));
+$("o-kieu-de").addEventListener("change", tomTatIn);
 $("nut-tai").addEventListener("click", () => lamPdf(false));
 $("nut-xem").addEventListener("click", () => lamPdf(true));
 
@@ -432,6 +437,7 @@ addEventListener("drop", (ev) => {
   datLogo(typeof luu.logo === "string" ? luu.logo : null);
   if (luu.boCuc) { const r = document.querySelector(`input[name=bo-cuc][value="${luu.boCuc}"]`); if (r) r.checked = true; }
   if (luu.dapAn === false) $("o-dap-an").checked = false;
+  if (KIEU_DE.includes(luu.kieuDe)) $("o-kieu-de").value = luu.kieuDe;
   if (["trai", "guong", "khong"].includes(luu.leGay)) $("o-le-gay").value = luu.leGay;
   const link = new URLSearchParams(location.search).get("link");
   if (link) { $("o-link").value = link; layTuLink(link); }
