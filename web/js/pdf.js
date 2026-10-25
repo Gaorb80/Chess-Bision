@@ -13,9 +13,11 @@ export const BO_CUC = {
   "3x4": { cot: 3, hang: 4, toaDo: false },
 };
 
-// khổ A4, lề (mm)
-const RONG = 210, CAO = 297;
-const LE_NGANG = 15, LE_TREN = 13, LE_DUOI = 16;
+// khổ A4, lề (mm); dùng chung với docx.js. Mọi nét, kể cả chân trang, cách mép giấy ít nhất
+// VUNG_AN_TOAN: máy in thật không in được sát mép, khổ Letter còn cắt thêm ~9 mm trên/dưới (#10).
+export const RONG = 210, CAO = 297;
+export const VUNG_AN_TOAN = 15;
+export const LE_NGANG = 18, LE_TREN = 18, LE_DUOI = 26;   // LE_DUOI: hết phần thân; chân trang nằm trong lề này
 const KHE_COT = 12, KHE_HANG = 6;
 const PT = 72 / 25.4;
 const DEN = rgb(0, 0, 0);
@@ -110,7 +112,8 @@ function dauTrang(b, f, { tieuDe, de, hoTen, sao = 0 }) {
   let x1 = LE_NGANG;
   const day = LE_TREN + (de && hoTen ? 15 : 10);
   if (f.logo && hoTen) {
-    const w = Math.min(30, LOGO_CAO * f.logo.width / f.logo.height);
+    // logo không được nhô lên trên lề trên khi tiêu đề chỉ có một dòng
+    const w = Math.min(30, Math.min(LOGO_CAO, day - 1.5 - LE_TREN) * f.logo.width / f.logo.height);
     const h = w * f.logo.height / f.logo.width;
     b.anh(f.logo, x1, day - 1.5 - h, w, h);
     x1 += w + 3;
@@ -135,7 +138,7 @@ function dauTrang(b, f, { tieuDe, de, hoTen, sao = 0 }) {
 }
 
 function chanTrang(b, trai, so, tong) {
-  const y = CAO - LE_DUOI + 5;
+  const y = CAO - LE_DUOI + 4;
   b.duong(LE_NGANG, y, RONG - LE_NGANG, y, { day: 0.4, mau: XAM(150) });
   b.chu(trai, LE_NGANG, y + 3.8, { co: 8, mau: XAM(80) });
   b.chu(`Trang ${so} / ${tong}`, RONG - LE_NGANG, y + 3.8, { co: 8, mau: XAM(80), phai: true });

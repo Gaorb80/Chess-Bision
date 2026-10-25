@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from pypdf import PdfReader
 
 from chessbision import cau_hinh
@@ -52,3 +53,25 @@ def test_bo_cuc_12_the_khong_toa_do(tmp_path):
 def test_json_doi_chieu(tmp_path):
     ws = tach((MAU / "chieu-het-1-nuoc.pgn").read_text(encoding="utf-8"))
     assert Worksheet.from_json(ws.to_json()) == ws
+
+
+@pytest.mark.parametrize("bo_cuc", list(cau_hinh.BO_CUC))
+def test_le_in_an_toan(tmp_path, bo_cuc):
+    """#10: mọi nét, kể cả chân trang và trang đáp án, cách mép giấy ít nhất pdf.VUNG_AN_TOAN."""
+    pdfplumber = pytest.importorskip("pdfplumber")
+    ws = tach((MAU / "chieu-het-1-nuoc.pgn").read_text(encoding="utf-8"))
+    for i, e in enumerate(ws.exercises):   # đề dài hai dòng như study thật
+        e.task = f"This position comes from an online rapid game between two players rated over 2000 ({i})"
+    ra = pdf.xuat(ws, cau_hinh.doc(None, bo_cuc=bo_cuc, bien_soan="CLB Dream Chess", cap_do="A"), tmp_path)
+    mm = 25.4 / 72
+    with pdfplumber.open(ra[0]) as f:
+        for so, trang in enumerate(f.pages, 1):
+            net = trang.chars + trang.lines + trang.rects + trang.curves + trang.images
+            le = {
+                "trái": min(o["x0"] for o in net) * mm,
+                "phải": (trang.width - max(o["x1"] for o in net)) * mm,
+                "trên": min(o["top"] for o in net) * mm,
+                "dưới": (trang.height - max(o["bottom"] for o in net)) * mm,
+            }
+            for phia, v in le.items():
+                assert v >= pdf.VUNG_AN_TOAN, f"trang {so}: lề {phia} chỉ còn {v:.1f} mm"

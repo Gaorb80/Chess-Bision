@@ -16,9 +16,12 @@ from ..mo_hinh import Worksheet
 from ..tach_bai import de_chung, ten_ben
 from . import so_do
 
-# khổ A4, lề (mm)
+# khổ A4, lề (mm). Mọi nét, kể cả chân trang, cách mép giấy ít nhất VUNG_AN_TOAN:
+# máy in thật không in được sát mép, khổ Letter còn cắt thêm ~9 mm trên/dưới (#10).
 RONG, CAO = 210, 297
-LE_NGANG, LE_TREN, LE_DUOI = 15, 13, 16
+VUNG_AN_TOAN = 15
+LE_NGANG, LE_TREN, LE_DUOI = 18, 18, 26   # LE_DUOI: hết phần thân; chân trang nằm trong lề này
+CHAN_TRANG = 4     # khoảng từ hết phần thân tới đường kẻ chân trang
 DAU_TRANG = 30     # chỗ cho tiêu đề + họ tên
 KHE_COT, KHE_HANG = 12, 6
 
@@ -91,7 +94,7 @@ def _trang_dap_an(ws: Worksheet, ch: CauHinh, tieu_de: str) -> str:
 def _mo_dau(ch: CauHinh, nguon: str) -> str:
     chan = (f"Biên soạn: {ch.bien_soan}" if ch.bien_soan else nguon)
     return ("#set document(title: \"Phiếu bài tập cờ vua\")\n"
-            f"#set page(paper: \"a4\", margin: (x: {LE_NGANG}mm, top: {LE_TREN}mm, bottom: {LE_DUOI}mm),\n"
+            f"#set page(paper: \"a4\", margin: (x: {LE_NGANG}mm, top: {LE_TREN}mm, bottom: {LE_DUOI}mm), footer-descent: {CHAN_TRANG}mm,\n"
             f"  footer: context [#set text(size: 8pt, fill: luma(80)); #line(length: 100%, stroke: 0.4pt + luma(150)) #v(-1.5mm) "
             f"#{_s(chan)} #h(1fr) Trang #counter(page).display() / #counter(page).final().first()])\n"
             "#set text(font: \"Be Vietnam Pro\", lang: \"vi\", size: 10pt)\n")

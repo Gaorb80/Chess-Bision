@@ -12,7 +12,7 @@ license = "GPL-3.0-or-later"
 dependencies = ["chess>=1.10", "typst>=0.13"]
 
 [project.optional-dependencies]
-test = ["pytest>=8", "pypdf>=4"]
+test = ["pytest>=8", "pypdf>=4", "pdfplumber>=0.11"]
 
 [project.scripts]
 chessbision = "chessbision.cli:main"

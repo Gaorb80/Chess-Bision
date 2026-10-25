@@ -268,7 +268,7 @@ async function lamPdf(xem) {
     } else {
       taiXuong(blob, ten);
     }
-    bao(tt, "tot", xem ? "Đã mở PDF ở thẻ mới. Bấm biểu tượng máy in hoặc Ctrl+P để in." : `Đã tải ${thoat(ten)}.`);
+    bao(tt, "tot", xem ? "Đã mở PDF ở thẻ mới. Bấm biểu tượng máy in hoặc Ctrl+P để in, nhớ chọn khổ giấy A4." : `Đã tải ${thoat(ten)}.`);
   } catch (e) {
     if (tab) tab.close();
     bao(tt, "loi", `Không tạo được PDF: ${thoat(e.message)}`);
