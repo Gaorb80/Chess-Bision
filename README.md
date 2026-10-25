@@ -36,11 +36,15 @@ Không cần cài LaTeX hay Typst riêng: gói `typst` trên PyPI có sẵn trì
 1. **Nguồn** (`nguon/`): tải PGN của study / chương qua API Lichess (`/api/study/{id}.pgn`). Study công khai không cần token. Study riêng tư: đặt biến môi trường `LICHESS_TOKEN` (token quyền `study:read`).
 2. **Tách bài** (`tach_bai.py`): mỗi chương có thế cờ bắt đầu (`[FEN]`) là một bài. Nhánh chính là đáp án, biến phụ là nước sai hay gặp. Mọi nước đi đều do python-chess kiểm.
    - Đề bài lấy từ bình luận đầu chương; không có thì tự viết theo kết quả kiểm, ví dụ “Chiếu hết sau 1 nước”.
-   - Báo lại: chương là ván đầy đủ (bỏ qua), bài trùng thế cờ (bỏ qua), bài chiếu hết 1 nước có nhiều đáp án (ghi đủ), PGN sai luật (bỏ qua).
+   - Báo lại: chương là ván đầy đủ (bỏ qua), bài trùng thế cờ (bỏ qua), bài chiếu hết 1 nước có nhiều đáp án (ghi đủ), PGN sai luật (bỏ qua), bài chưa có nước đáp án.
+   - Study tách “Bài tập” (chỉ có thế cờ) và “Đáp án” (cùng thế cờ, có nước đi) thành hai chương: nước đi của chương sau được ghép làm đáp án cho bài trước.
    - Điểm từng bài: tag `[Points "20"]`, mặc định 10.
    - Cấp độ: tag `[Level]` nhận `1`–`3`, `★`–`★★★` hoặc `A`–`C`; chủ đề: tag `[Theme]`, nhiều chủ đề cách nhau bằng dấu phẩy.
 3. **Mô hình** (`mo_hinh.py`): lưu được ra JSON (`--luu-json bai.json`), sửa tay rồi in lại (`chessbision in bai.json`).
 4. **Xuất** (`xuat/`): sơ đồ SVG đen trắng bằng bộ quân cburnett, Typst ghép trang A4, phông Be Vietnam Pro.
+   - Đề in đủ, không cắt: hàng sơ đồ có đề dài cao hơn, trang đó in ít thế hơn. Trang nào cũng có tiêu đề và chỗ ghi họ tên.
+   - Số dòng ghi lời giải theo độ dài đáp án (tối đa 4 dòng ở `2x2`, 2 dòng ở `2x3`, 1 dòng ở `3x3`/`3x4`).
+   - Emoji trong tên chương bị bỏ khi in (phông in không có).
 
 ## Tùy chọn
 
@@ -52,6 +56,8 @@ Không cần cài LaTeX hay Typst riêng: gói `typst` trên PyPI có sẵn trì
 | `--diem` | `khong` | `co`: ô điểm từng bài trên phiếu |
 | `--huong` | `ben-di` (bên phải đi ở dưới) | `trang` |
 | `--bo-trung` | `co` | `khong` |
+| `--le-gay` | `trai`: chừa 25 mm bên trái (in một mặt, ghim góc trái) | `guong`: 25 mm phía gáy, đổi bên theo trang (in hai mặt); `khong`: 18 mm hai bên |
+| `--bai-chua-dap-an` | `khong`: bỏ bài chưa có nước đáp án | `co`: vẫn in, đáp án ghi “(chưa có đáp án)” |
 | `--tieu-de`, `--cap-do`, `--bien-soan` | lấy từ study | |
 
 Dùng chung cho cả CLB: chép `chessbision.toml.example` thành `chessbision.toml`.

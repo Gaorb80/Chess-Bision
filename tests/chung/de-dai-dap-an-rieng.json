@@ -1,0 +1,96 @@
+{
+  "title": "Phòng thủ chủ động",
+  "exercises": [
+    {
+      "id": 1,
+      "fen": "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1",
+      "side_to_move": "white",
+      "task": "Thế cờ này lấy từ một ván cờ nhanh trên mạng giữa hai kỳ thủ có hệ số trên 2000. Đen vừa thí một quân để lấy hai tốt và mở toang cánh Vua của Trắng, nhưng lại quên mất hàng ngang cuối của chính mình. Hãy quan sát kỹ: ba con tốt f7, g7, h7 vẫn đứng yên tại chỗ, Vua đen không có ô thoát nào, và mọi quân đen khác đều ở quá xa để kịp quay về che chắn. Trước khi tìm nước đi, hãy tự hỏi: quân nào của Trắng đang có đường mở tới hàng tám? Đâu là ô mà Đen không kiểm soát được? Nếu Trắng đi sai, Đen sẽ có thời gian đưa Vua ra ô h6 hoặc đẩy tốt h tạo lỗ thở, và ưu thế sẽ tan biến. Đây là bài học quan trọng về hàng ngang cuối mà người mới học hay bỏ qua: luôn kiểm tra xem Vua của mình có lỗ thở hay chưa, và luôn tìm cách khai thác hàng ngang cuối của đối phương. Trắng đi và chiếu hết ngay lập tức. Hãy ghi nước đi bằng ký hiệu quốc tế.",
+      "task_auto": false,
+      "solution": [
+        "Ra8#"
+      ],
+      "alt_solutions": [],
+      "wrong_tries": [],
+      "points": 10,
+      "title": "🧠 Thế cờ 1",
+      "source_url": "https://lichess.org/study/abcdEFGH/aaaaaaaa",
+      "level": null,
+      "themes": []
+    },
+    {
+      "id": 2,
+      "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 3",
+      "side_to_move": "white",
+      "task": "Trắng đi. Hãy tìm nước thắng nhanh nhất, ghi lại rồi xem chương Đáp án.",
+      "task_auto": false,
+      "solution": [
+        "Qxf7#"
+      ],
+      "alt_solutions": [],
+      "wrong_tries": [
+        "Bxf7+"
+      ],
+      "points": 10,
+      "title": "👑 Bài tập",
+      "source_url": "https://lichess.org/study/abcdEFGH/bbbbbbbb",
+      "level": null,
+      "themes": []
+    },
+    {
+      "id": 3,
+      "fen": "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1",
+      "side_to_move": "white",
+      "task": "Thế cờ cuối ván. Hãy chơi tiếp với bạn để xem có thắng được không.",
+      "task_auto": false,
+      "solution": [],
+      "alt_solutions": [],
+      "wrong_tries": [],
+      "points": 10,
+      "title": "🧠 Bài tập cuối",
+      "source_url": "https://lichess.org/study/abcdEFGH/dddddddd",
+      "level": null,
+      "themes": []
+    },
+    {
+      "id": 4,
+      "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+      "side_to_move": "white",
+      "task": "Hãy ghi lại phương án phát triển quân hợp lý cho cả hai bên trong sáu nước tiếp theo.",
+      "task_auto": false,
+      "solution": [
+        "Nf3",
+        "Nc6",
+        "Bb5",
+        "a6",
+        "Ba4",
+        "Nf6",
+        "O-O",
+        "Be7",
+        "Re1",
+        "b5",
+        "Bb3",
+        "d6",
+        "c3",
+        "O-O"
+      ],
+      "alt_solutions": [],
+      "wrong_tries": [],
+      "points": 10,
+      "title": "🧗 Phân tích dài",
+      "source_url": "https://lichess.org/study/abcdEFGH/eeeeeeee",
+      "level": null,
+      "themes": []
+    }
+  ],
+  "notices": [
+    [
+      "merged-answer",
+      "👑 Đáp án"
+    ],
+    [
+      "no-moves",
+      "🧠 Bài tập cuối"
+    ]
+  ]
+}

@@ -98,3 +98,14 @@ def test_json_cap_do_sai_bi_tu_choi():
         d["exercises"][0]["level"] = xau
         with pytest.raises(SystemExit):
             Worksheet.from_json(json.dumps(d))
+
+
+def test_ghep_chuong_dap_an_rieng_vao_bai_tap():
+    """Study tách "Bài tập" (chỉ thế cờ) và "Đáp án" (cùng thế, có nước đi): ghép thành một bài có đáp án."""
+    from pathlib import Path
+    ws = tach((Path(__file__).parent.parent / "mau" / "de-dai-dap-an-rieng.pgn").read_text(encoding="utf-8"))
+    bai = {e.title: e for e in ws.exercises}
+    assert "👑 Đáp án" not in bai
+    assert bai["👑 Bài tập"].solution == ["Qxf7#"] and bai["👑 Bài tập"].wrong_tries == ["Bxf7+"]
+    assert bai["🧠 Bài tập cuối"].solution == []
+    assert [(n.code, n.chapter) for n in ws.notices] == [("merged-answer", "👑 Đáp án"), ("no-moves", "🧠 Bài tập cuối")]

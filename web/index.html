@@ -117,9 +117,18 @@
         <legend>Bố cục trang</legend>
         <label class="chon"><input type="radio" name="bo-cuc" value="2x3" checked> 6 thế mỗi trang, có tọa độ a–h, 1–8</label>
         <label class="chon"><input type="radio" name="bo-cuc" value="3x4"> 12 thế mỗi trang, không tọa độ</label>
+        <label class="chon"><input type="radio" name="bo-cuc" value="2x2"> 4 thế mỗi trang, có tọa độ, nhiều chỗ ghi lời giải (bài phân tích, đề dài)</label>
+        <p class="goi-y nho">Đề dài thì phiếu tự in ít thế hơn mỗi trang để giữ đủ chữ, không cắt đề.</p>
       </fieldset>
+      <label><span>Lề đóng ghim / đóng gáy</span>
+        <select id="o-le-gay">
+          <option value="trai">Chừa 25 mm bên trái (in một mặt, ghim góc trái)</option>
+          <option value="guong">Chừa 25 mm phía gáy, đổi bên theo trang (in hai mặt)</option>
+          <option value="khong">Không chừa (18 mm hai bên)</option>
+        </select></label>
       <label class="chon"><input type="checkbox" id="o-dap-an" checked> Kèm trang đáp án ở cuối file</label>
     </div>
+    <div id="nhac-in" class="nhac-in" role="note" hidden></div>
     <div class="hanh-dong">
       <button type="button" class="nut chinh lon" id="nut-tai">Tải PDF</button>
       <button type="button" class="nut phu lon" id="nut-xem">Mở PDF để in</button>

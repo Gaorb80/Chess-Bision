@@ -16,7 +16,7 @@ Người dùng viết tiếng Việt; trả lời tiếng Việt. Tên module, b
 ## Trang web (`web/`)
 
 - Bản JavaScript chạy trong trình duyệt, đăng lên GitHub Pages. Giữ cùng quy ước với bản Python: sửa luật tách bài ở một bên thì sửa cả bên kia và `tests/web/`. Phép thử chung `tests/chung/` bắt hai bên ra cùng JSON; thêm PGN vào `mau/` thì chạy `tests/chung/cap_nhat.py`.
-- PDF (`pdf.js`) và Word (`docx.js`) cùng bố cục; sửa một bên thì sửa bên kia. Lề in: mọi nét, kể cả chân trang, cách mép giấy ít nhất `VUNG_AN_TOAN` (15 mm) ở cả Typst, PDF web và Word; có phép thử `tests/web/le_in.test.mjs` và `test_le_in_an_toan`. Phiếu học sinh không chứa đáp án ở cả hai (có phép thử trong `tests/web/xuat.test.mjs`).
+- PDF (`pdf.js`) và Word (`docx.js`) cùng bố cục; sửa một bên thì sửa bên kia, và sửa cả Typst (`xuat/pdf.py`). Bố cục chảy theo hàng: không cắt đề im lặng, đầu trang (tiêu đề, họ tên) ở mọi trang, lề gáy `LE_GAY` 25 mm (`trai` / `guong` / `khong`) để góc ghim 25 × 25 mm trống; có phép thử `tests/web/phieu.test.mjs` và `tests/test_bo_cuc_phieu.py`. Lề in: mọi nét, kể cả chân trang, cách mép giấy ít nhất `VUNG_AN_TOAN` (15 mm) ở cả Typst, PDF web và Word; có phép thử `tests/web/le_in.test.mjs` và `test_le_in_an_toan`. Phiếu học sinh không chứa đáp án ở cả hai (có phép thử trong `tests/web/xuat.test.mjs`).
 - Mẫu phiếu và logo lưu trong `localStorage`; mọi mẫu đọc vào đều qua `chuanMau()`, logo chỉ nhận PNG/JPEG thật dưới 300 KB.
 - Luật cờ ở web do chess.js tính (cùng luật cứng như python-chess). Thư viện chép vào `web/vendor/`, không dùng CDN, không cần build.
 

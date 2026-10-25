@@ -31,7 +31,8 @@ def test_xuat_phieu_va_dap_an(tmp_path):
     assert len(PdfReader(ra[0]).pages) == 2          # 7 bài, 6 bài/trang
     assert "Cấp độ A" in phieu and "Biên soạn: CLB Dream Chess" in phieu
     assert "Xa8#" not in phieu                        # phiếu học sinh không lộ đáp án
-    assert "1. Xa8#" in dap_an and "1... Xa1#" in dap_an and "Tổng" in dap_an
+    assert "1. Xa8#" in dap_an and "1... Xa1#" in dap_an
+    assert "Tổng" not in dap_an and "Điểm" not in dap_an   # không chấm điểm thì không in cột điểm (như bản web)
 
 
 def test_mac_dinh_dap_an_cung_file_quoc_te(tmp_path):

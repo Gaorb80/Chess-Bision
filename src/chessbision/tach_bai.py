@@ -2,7 +2,9 @@
 
 Quy ước M0: mỗi chương (ván) có tag [FEN] là một bài. Thế cờ đầu là đề,
 nhánh chính là đáp án, nước đầu của các biến phụ là nước sai hay gặp.
-Chương là ván đầy đủ (không có [FEN]) được bỏ qua và báo lại.
+Chương là ván đầy đủ (không có [FEN]) được bỏ qua và báo lại. Chương trùng thế cờ
+được bỏ qua, trừ khi bài trước chưa có nước đáp án: khi đó nước đi của chương sau
+thành đáp án của bài trước (study hay tách "Bài tập" và "Đáp án" thành hai chương).
 """
 from __future__ import annotations
 
@@ -79,10 +81,6 @@ def tach(pgn_text: str, *, bo_trung: bool = True, nguon: dict | None = None) -> 
 
         board = game.board()
         khoa = _khoa_the_co(board)
-        if bo_trung and khoa in da_co:
-            bao.append(Notice("duplicate", ten, f"Trùng thế cờ với bài {da_co[khoa]}; bỏ qua."))
-            continue
-
         nhanh = list(game.mainline_moves())
         ben = "white" if board.turn == chess.WHITE else "black"
         sol = []
@@ -97,12 +95,29 @@ def tach(pgn_text: str, *, bo_trung: bool = True, nguon: dict | None = None) -> 
         de = de_bl or de_tu_dong or "Tìm nước đi tốt nhất"
 
         khac: list[str] = []
+        bao_rieng: list[Notice] = []
         if de_tu_dong and len(nhanh) == 1:
             khac = [board.san(m) for m in _cac_nuoc_chieu_het(board) if m != nhanh[0]]
             if khac:
-                bao.append(Notice("multi-solution", ten, f"Có {len(khac) + 1} nước chiếu hết: {', '.join([sol[0], *khac])}. Đáp án ghi đủ."))
+                bao_rieng.append(Notice("multi-solution", ten, f"Có {len(khac) + 1} nước chiếu hết: {', '.join([sol[0], *khac])}. Đáp án ghi đủ."))
+
+        if bo_trung and khoa in da_co:
+            truoc = bai[da_co[khoa] - 1]
+            if not truoc.solution and sol:
+                # study hay tách "Bài tập" (chỉ có thế cờ) và "Đáp án" (cùng thế cờ, có nước đi) thành hai chương
+                truoc.solution, truoc.alt_solutions, truoc.wrong_tries = sol, khac, sai
+                if truoc.task_auto:
+                    truoc.task = de
+                bao[:] = [n for n in bao if not (n.code == "no-moves" and n.chapter == truoc.title)]
+                bao.extend(bao_rieng)
+                bao.append(Notice("merged-answer", ten, f"Cùng thế cờ với bài {truoc.id} (chưa có đáp án): lấy nước đi ở chương này làm đáp án cho bài {truoc.id}."))
+            else:
+                bao.append(Notice("duplicate", ten, f"Trùng thế cờ với bài {da_co[khoa]}; bỏ qua."))
+            continue
+
+        bao.extend(bao_rieng)
         if not nhanh:
-            bao.append(Notice("no-moves", ten, "Chương có thế cờ nhưng chưa có nước đáp án; phiếu vẫn in, đáp án để trống."))
+            bao.append(Notice("no-moves", ten, "Chương có thế cờ nhưng chưa có nước đáp án; nên bỏ bài này hoặc thêm đáp án trước khi in."))
 
         try:
             diem = int(game.headers.get("Points", "10"))

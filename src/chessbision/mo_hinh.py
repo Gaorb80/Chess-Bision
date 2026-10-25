@@ -28,7 +28,7 @@ class Exercise:
 
 @dataclass
 class Notice:
-    code: str        # full-game, no-moves, illegal, duplicate, multi-solution, empty-chapter
+    code: str        # full-game, no-moves, illegal, duplicate, merged-answer, multi-solution, empty-chapter
     chapter: str
     message: str
 

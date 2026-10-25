@@ -8,7 +8,7 @@ export const MAU_CO_SAN = [
 ];
 
 const KHOA = "chessbision.mau-phieu";
-const BO_CUC = ["2x3", "3x4"];
+const BO_CUC = ["2x2", "2x3", "3x4"];
 export const LOGO_TOI_DA = 300 * 1024;          // byte ảnh gốc
 const DAU_LOGO = /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/]+=*$/;
 
