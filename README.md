@@ -9,12 +9,12 @@ chessbision in mau/chieu-het-1-nuoc.pgn --cap-do A --bien-soan "CLB Dream Chess"
 
 ## Dùng trên web (cho giáo viên, không cần cài gì)
 
-Mở **https://gaorb80.github.io/Chess-Bision/**, dán link study Lichess (hoặc chọn file PGN), xem trước, chọn bố cục 6 hay 12 thế mỗi trang, bấm **Tải PDF** hoặc **Tải Word** (file .docx sửa chữ được trong Word / Google Docs).
+Mở **https://gaorb80.github.io/Chess-Bision/**, dán link study Lichess (hoặc chọn file PGN). Trang làm việc đi ba bước: xem danh sách bài (máy tính: thẻ lớn; điện thoại: danh sách gọn, bấm từng dòng để mở bàn cờ), chọn bố cục 6 hay 12 thế mỗi trang, rồi bấm **Tải PDF** hoặc **Tải Word** (file .docx sửa chữ được trong Word / Google Docs). Cột bên phải luôn có phiếu A4 xem trước khi chọn bố cục.
 
 - **Mẫu phiếu**: lưu bố cục, trang đáp án, người biên soạn và logo CLB thành mẫu có tên, lần sau chọn lại. Mẫu lưu trên máy (trình duyệt) của giáo viên.
 - **Cấp độ**: ghi tag `[Level "2"]` (hoặc `★★`, `B`) và `[Theme "Chiếu hết, Hy sinh"]` trong chương Lichess. Trang hiện sao trên từng bài, cho chọn bài theo cấp độ, xếp từ dễ đến khó và in sao cạnh tiêu đề phiếu. Trang chạy hoàn toàn trong trình duyệt: lấy PGN thẳng từ Lichess, tạo PDF ngay trên máy, không có máy chủ riêng.
 
-Mã trang web ở `web/` (HTML + JavaScript thuần, không cần build): `pgn.js` đọc PGN, `tach_bai.js` tách bài theo đúng quy ước của bản Python (luật cờ do chess.js tính), `pdf.js` vẽ phiếu bằng pdf-lib, `docx.js` ra file Word bằng thư viện docx (chỉ tải khi bấm), `mau_phieu.js` giữ mẫu phiếu. Chạy thử trên máy: `python -m http.server -d web 8000` rồi mở http://localhost:8000. Kiểm thử: `node --test tests/web/*.test.mjs`. Mỗi lần `main` thay đổi, workflow `.github/workflows/trang-web.yml` kiểm thử rồi đăng lại trang.
+Mã trang web ở `web/` (HTML + JavaScript thuần, không cần build): `pgn.js` đọc PGN, `tach_bai.js` tách bài theo đúng quy ước của bản Python (luật cờ do chess.js tính), `pdf.js` vẽ phiếu bằng pdf-lib, `docx.js` ra file Word bằng thư viện docx (chỉ tải khi bấm), `mau_phieu.js` giữ mẫu phiếu, `app.js` lo giao diện ba bước (lấy bài → kiểm tra → tuỳ chọn và in) và phiếu A4 xem trước. Chạy thử trên máy: `python -m http.server -d web 8000` rồi mở http://localhost:8000. Kiểm thử: `node --test tests/web/*.test.mjs`. Mỗi lần `main` thay đổi, workflow `.github/workflows/trang-web.yml` kiểm thử rồi đăng lại trang.
 
 ## Dòng lệnh
 
